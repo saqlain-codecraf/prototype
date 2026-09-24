@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+html, body, #root {
+  height: 100%;
+  background: #0f172a;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0);    }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0);    }
+}
+
+@keyframes bounceIn {
+  0%   { transform: scale(0.85); opacity: 0; }
+  55%  { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.8; }
+  100% { transform: scale(1.5);  opacity: 0;   }
+}
+
+.anim-slide-up       { animation: slideUp       0.28s cubic-bezier(.22,.68,0,1.2) both; }
+.anim-fade-in        { animation: fadeIn        0.25s ease both; }
+.anim-slide-right    { animation: slideInRight  0.28s cubic-bezier(.22,.68,0,1.2) both; }
+.anim-slide-up-sheet { animation: slideInUp     0.32s cubic-bezier(.22,.68,0,1.2) both; }
+.anim-bounce-in      { animation: bounceIn      0.38s cubic-bezier(.22,.68,0,1.2) both; }
+
+@keyframes shrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+@keyframes drop {
+  0%   { transform: translateY(-28px) scale(0.6); opacity: 0; }
+  60%  { transform: translateY(3px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1);    opacity: 1; }
+}
+
+@keyframes toastIn {
+  from { transform: translateY(-120%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(6deg); }
+}
+
+@keyframes radar {
+  0%   { transform: scale(0.4); opacity: 0.7; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.anim-grow    { transform-origin: left; animation: grow ease-out both; }
+.anim-shrink  { transform-origin: left; animation: shrink linear both; }
+.anim-drop    { animation: drop 0.5s cubic-bezier(.22,.68,0,1.2) both; }
+.anim-toast   { animation: toastIn 0.35s cubic-bezier(.22,.68,0,1.2) both; }
+.anim-wiggle  { animation: wiggle 0.9s ease-in-out infinite; }
+
+.radar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid #10B981;
+  animation: radar 2.4s ease-out infinite;
+}
+
+.pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #10B981;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
