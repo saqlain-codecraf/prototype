@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { ChevronLeft, StarFilled, CheckIcon, XIcon, MapPinIcon } from './Icons'
 
 // ------------------------------------------------------------------
@@ -8,7 +8,7 @@ import { ChevronLeft, StarFilled, CheckIcon, XIcon, MapPinIcon } from './Icons'
 export function StatusBar({ light = false }: { light?: boolean }) {
   const c = light ? 'text-white' : 'text-gray-900'
   return (
-    <div className={`flex items-center justify-between px-5 pt-3 pb-1 text-[11px] font-semibold ${c}`}>
+    <div className={`fake-status flex items-center justify-between px-5 pt-3 pb-1 text-[11px] font-semibold ${c}`}>
       <span>9:41</span>
       <div className="flex items-center gap-1.5">
         <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor">
@@ -373,49 +373,229 @@ export interface MapPin {
   onClick?: () => void
 }
 
-export function MapView({ height, pins = [], route, className = '', children }: {
+export interface LatLng { lat: number; lng: number }
+
+/** G-7 / Blue Area, Islamabad — the prototype's default map centre. */
+export const DEFAULT_CENTER: LatLng = { lat: 33.7085, lng: 73.0625 }
+
+const TILE = 256
+
+function project({ lat, lng }: LatLng, z: number) {
+  const s = TILE * 2 ** z
+  const sin = Math.sin((lat * Math.PI) / 180)
+  return { x: ((lng + 180) / 360) * s, y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * s }
+}
+
+function unproject(x: number, y: number, z: number): LatLng {
+  const s = TILE * 2 ** z
+  const n = Math.PI - (2 * Math.PI * y) / s
+  return { lat: (180 / Math.PI) * Math.atan(Math.sinh(n)), lng: (x / s) * 360 - 180 }
+}
+
+// ------------------------------------------------------------------
+// Google Maps (used when VITE_GOOGLE_MAPS_API_KEY is set)
+// ------------------------------------------------------------------
+
+export const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim() ?? ''
+
+// Minimal typing for the parts of the Maps JS API we use.
+type GMap = {
+  getCenter(): { lat(): number; lng(): number } | undefined
+  setCenter(c: LatLng): void
+  setZoom(z: number): void
+  setOptions(o: object): void
+  addListener(ev: string, fn: () => void): { remove(): void }
+}
+type GoogleNS = { maps: { Map: new (el: HTMLElement, opts: object) => GMap } }
+
+let googlePromise: Promise<GoogleNS> | null = null
+let warnedNoKey = false
+function warnNoKey() {
+  if (warnedNoKey) return
+  warnedNoKey = true
+  console.warn('[DoAura] VITE_GOOGLE_MAPS_API_KEY is not set in this build — using OpenStreetMap. Restart the dev server after editing .env.')
+}
+// Google reports an invalid/restricted key via window.gm_authFailure, not a script error.
+let googleAuthFailed = false
+const authFailListeners = new Set<() => void>()
+
+export function loadGoogleMaps(): Promise<GoogleNS> {
+  const w = window as unknown as { google?: GoogleNS; __doauraMapsReady?: () => void; gm_authFailure?: () => void }
+  if (googleAuthFailed) return Promise.reject(new Error('Google Maps key rejected'))
+  w.gm_authFailure = () => {
+    googleAuthFailed = true
+    console.warn('[DoAura] Google Maps rejected the API key — falling back to OpenStreetMap.')
+    authFailListeners.forEach(f => f())
+  }
+  if (w.google?.maps?.Map) return Promise.resolve(w.google)
+  if (!googlePromise) {
+    googlePromise = new Promise((resolve, reject) => {
+      w.__doauraMapsReady = () => resolve(w.google!)
+      const s = document.createElement('script')
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_KEY)}&v=weekly&loading=async&libraries=places,geocoding&callback=__doauraMapsReady`
+      s.async = true
+      s.onerror = () => { googlePromise = null; reject(new Error('Google Maps failed to load')) }
+      document.head.appendChild(s)
+    })
+  }
+  return googlePromise
+}
+
+// Quiet, brand-friendly style: hide business POIs and transit clutter.
+const GOOGLE_STYLE = [
+  { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#d7f0dc' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9e4f5' }] },
+]
+
+function GoogleLayer({ center, zoom, interactive, onCenterChange, onDragState, onFail }: {
+  center: LatLng
+  zoom: number
+  interactive: boolean
+  onCenterChange?: (c: LatLng) => void
+  onDragState?: (d: boolean) => void
+  onFail: () => void
+}) {
+  const el = useRef<HTMLDivElement>(null)
+  const map = useRef<GMap | null>(null)
+  const cb = useRef({ onCenterChange, onDragState, onFail })
+  cb.current = { onCenterChange, onDragState, onFail }
+
+  useEffect(() => {
+    let off: { remove(): void }[] = []
+    let cancelled = false
+    const fail = () => cb.current.onFail()
+    authFailListeners.add(fail)
+    loadGoogleMaps().then(g => {
+      if (cancelled || !el.current) return
+      const m = new g.maps.Map(el.current, {
+        center, zoom, disableDefaultUI: true, clickableIcons: false, keyboardShortcuts: false,
+        gestureHandling: interactive ? 'greedy' : 'none', styles: GOOGLE_STYLE,
+      })
+      map.current = m
+      // Only report centre changes the user makes, not our own setCenter() calls.
+      let userMoving = false
+      off = [
+        m.addListener('dragstart', () => { userMoving = true; cb.current.onDragState?.(true) }),
+        m.addListener('center_changed', () => {
+          const c = m.getCenter()
+          if (c && interactive && userMoving) cb.current.onCenterChange?.({ lat: c.lat(), lng: c.lng() })
+        }),
+        m.addListener('dragend', () => cb.current.onDragState?.(false)),
+        m.addListener('idle', () => { userMoving = false }),
+      ]
+    }).catch(() => cb.current.onFail())
+    return () => { cancelled = true; authFailListeners.delete(fail); off.forEach(l => l.remove()) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Follow external centre/zoom changes (e.g. "use my location") without fighting the user's drag.
+  useEffect(() => {
+    const m = map.current
+    const c = m?.getCenter()
+    if (!m || !c) return
+    if (Math.abs(c.lat() - center.lat) > 1e-6 || Math.abs(c.lng() - center.lng) > 1e-6) m.setCenter(center)
+  }, [center.lat, center.lng])
+  useEffect(() => { map.current?.setZoom(zoom) }, [zoom])
+
+  return <div ref={el} className="absolute inset-0"/>
+}
+
+/**
+ * Real street map: Google Maps when VITE_GOOGLE_MAPS_API_KEY is set, otherwise OpenStreetMap tiles. Pins and route are placed in % of the
+ * container so screens can position them freely; pass `onCenterChange` to make the map draggable.
+ */
+export function MapView({ height, pins = [], route, className = '', children, center = DEFAULT_CENTER, zoom = 15, onCenterChange, onDragState }: {
   height: number | string
   pins?: MapPin[]
   route?: [{ x: number; y: number }, { x: number; y: number }]
   className?: string
   children?: ReactNode
+  center?: LatLng
+  zoom?: number
+  onCenterChange?: (c: LatLng) => void
+  onDragState?: (dragging: boolean) => void
 }) {
-  const id = useId().replace(/:/g, '')
-  return (
-    <div className={`relative overflow-hidden ${className}`} style={{ height, background: '#EEF6F1' }}>
-      <svg className="absolute inset-0" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <pattern id={`g${id}`} width="8" height="8" patternUnits="userSpaceOnUse">
-            <path d="M 8 0 L 0 0 0 8" fill="none" stroke="#DCEFE4" strokeWidth="0.25"/>
-          </pattern>
-        </defs>
-        <rect width="100" height="100" fill={`url(#g${id})`}/>
-        {/* blocks */}
-        <rect x="4" y="6" width="18" height="14" rx="1.5" fill="#E2EFE7"/>
-        <rect x="40" y="6" width="20" height="16" rx="1.5" fill="#E2EFE7"/>
-        <rect x="74" y="62" width="20" height="22" rx="1.5" fill="#E2EFE7"/>
-        <rect x="6" y="60" width="16" height="12" rx="1.5" fill="#E2EFE7"/>
-        {/* park & water */}
-        <rect x="62" y="8" width="30" height="20" rx="3" fill="#C9EBD5"/>
-        <circle cx="70" cy="16" r="2" fill="#A7DDB9"/><circle cx="82" cy="20" r="2.5" fill="#A7DDB9"/>
-        <path d="M0 88 Q 25 80 45 90 T 100 86 L100 100 L0 100 Z" fill="#CDE7F5"/>
-        {/* roads */}
-        <rect x="0" y="44" width="100" height="7" fill="#FFFFFF"/>
-        <rect x="28" y="0" width="6" height="100" fill="#FFFFFF"/>
-        <rect x="66" y="30" width="4.5" height="70" fill="#FFFFFF"/>
-        <rect x="0" y="26" width="66" height="3.5" fill="#FFFFFF"/>
-        <line x1="0" y1="47.5" x2="100" y2="47.5" stroke="#F3D98B" strokeWidth="0.4" strokeDasharray="3 2" vectorEffect="non-scaling-stroke"/>
-        {route && (
-          <path
-            d={`M ${route[0].x} ${route[0].y} Q ${(route[0].x + route[1].x) / 2} ${Math.min(route[0].y, route[1].y) - 12} ${route[1].x} ${route[1].y}`}
-            fill="none" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeDasharray="1 6"
-            vectorEffect="non-scaling-stroke"
-          />
-        )}
-      </svg>
+  const ref = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState({ w: 390, h: 300 })
+  const drag = useRef<{ x: number; y: number; c: { x: number; y: number } } | null>(null)
+  const [google, setGoogle] = useState(!!GOOGLE_KEY)
+  useEffect(() => { if (!GOOGLE_KEY) warnNoKey() }, [])
 
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height }))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const c = project(center, zoom)
+  const left = c.x - size.w / 2
+  const top = c.y - size.h / 2
+  const tiles: { key: string; x: number; y: number; url: string }[] = []
+  const max = 2 ** zoom
+  if (!google) for (let tx = Math.floor(left / TILE); tx <= Math.floor((left + size.w) / TILE); tx++) {
+    for (let ty = Math.floor(top / TILE); ty <= Math.floor((top + size.h) / TILE); ty++) {
+      if (ty < 0 || ty >= max) continue
+      const wx = ((tx % max) + max) % max
+      tiles.push({ key: `${tx}:${ty}`, x: tx * TILE - left, y: ty * TILE - top, url: `https://tile.openstreetmap.org/${zoom}/${wx}/${ty}.png` })
+    }
+  }
+
+  const interactive = !!onCenterChange
+  const onDown = (e: React.PointerEvent) => {
+    if (!interactive || google) return
+    ;(e.target as Element).setPointerCapture?.(e.pointerId)
+    drag.current = { x: e.clientX, y: e.clientY, c }
+    onDragState?.(true)
+  }
+  const onMove = (e: React.PointerEvent) => {
+    const d = drag.current
+    if (!d) return
+    onCenterChange!(unproject(d.c.x - (e.clientX - d.x), d.c.y - (e.clientY - d.y), zoom))
+  }
+  const onUp = () => {
+    if (!drag.current) return
+    drag.current = null
+    onDragState?.(false)
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={`relative overflow-hidden select-none ${interactive ? 'cursor-grab active:cursor-grabbing touch-none' : ''} ${className}`}
+      style={{ height, background: '#EEF0EC' }}
+      onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+    >
+      {google ? (
+        <GoogleLayer center={center} zoom={zoom} interactive={interactive} onCenterChange={onCenterChange} onDragState={onDragState} onFail={() => setGoogle(false)}/>
+      ) : (
+      <div className="absolute inset-0 pointer-events-none">
+        {tiles.map(t => (
+          <img key={t.key} src={t.url} alt="" draggable={false} width={TILE} height={TILE}
+            className="absolute max-w-none" style={{ left: t.x, top: t.y, width: TILE, height: TILE }}/>
+        ))}
+      </div>
+      )}
+      {route && (
+        <svg className="absolute inset-0 pointer-events-none" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(() => {
+            const d = `M ${route[0].x} ${route[0].y} Q ${(route[0].x + route[1].x) / 2} ${Math.min(route[0].y, route[1].y) - 12} ${route[1].x} ${route[1].y}`
+            return (
+              <>
+                <path d={d} fill="none" stroke="#FFFFFF" strokeWidth="9" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
+                <path d={d} fill="none" stroke="#2563EB" strokeWidth="5" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
+              </>
+            )
+          })()}
+        </svg>
+      )}
       {pins.map(p => <Pin key={p.id} pin={p}/>)}
       {children}
+      {!google && <div className="absolute bottom-1 right-1.5 text-[8px] text-gray-500/80 pointer-events-none">© OpenStreetMap contributors</div>}
     </div>
   )
 }

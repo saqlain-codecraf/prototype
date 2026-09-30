@@ -3,7 +3,7 @@ import { FloatingNav, ToastView, useToast } from '../../components/ui'
 import { HomeIcon, BriefcaseIcon, MessageIcon, UserIcon, PlusIcon } from '../../components/Icons'
 import { ChatScreen, ConversationList, useConversations } from '../../components/Chat'
 import { OtpScreen, SignupScreen, type Profile } from '../auth/Auth'
-import { CURRENT_PLACE, LocationPermission, LocationPickerScreen } from './Location'
+import { LocationPermission, LocationPickerScreen } from './Location'
 import { HirerHome } from './HirerHome'
 import { CreateJobScreen } from './CreateJob'
 import { FindWorkersScreen } from './FindWorkers'
@@ -257,7 +257,7 @@ export default function HirerApp({ mode, profile: account, onSignOut, onCancel, 
 
       {permission === 'unknown' && (
         <LocationPermission
-          onAllow={() => { setPermission('granted'); setPlace(CURRENT_PLACE); setFirstPicker(true) }}
+          onAllow={p => { setPermission('granted'); setPlace(p); setFirstPicker(true) }}
           onManual={() => { setPermission('denied'); setFirstPicker(true) }}
         />
       )}

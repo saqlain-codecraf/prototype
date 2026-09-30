@@ -7,6 +7,8 @@ export interface Place {
   icon: string
   line: string
   area: string
+  lat?: number
+  lng?: number
 }
 
 export type HirerJobStatus = 'searching' | WorkStatus | 'cancelled'

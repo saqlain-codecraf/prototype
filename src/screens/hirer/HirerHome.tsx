@@ -114,7 +114,7 @@ export function HirerHome({ name, place, active, recent, unread, offers, onChang
           <div className="font-extrabold text-gray-900 flex items-center gap-2">⚡ Flash sale</div>
           <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">Ends in {left}</span>
         </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-1 mb-5 snap-x snap-mandatory">
+        <div className="flex gap-3 overflow-x-auto px-5 scroll-px-5 pb-1 mb-5 snap-x snap-mandatory after:content-[''] after:w-2 after:flex-shrink-0">
           {PROMOS.map(p => (
             <button key={p.id} onClick={() => onCreate({ categoryId: p.categoryId, promo: p.promo })}
               className="relative flex-shrink-0 w-[82%] snap-start rounded-2xl p-4 text-left overflow-hidden active:scale-[0.98] transition-all" style={{ background: p.bg }}>

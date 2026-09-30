@@ -126,9 +126,19 @@ export const TIME_SLOTS: { id: string; label: string; emoji: string; times: stri
 ]
 
 export const SAVED_PLACES = [
-  { id: 'home', label: 'Home', icon: '🏠', line: 'House 14, Street 22, G-7/1', area: 'G-7/1, Islamabad' },
-  { id: 'office', label: 'Office', icon: '🏢', line: 'Plaza 5, Blue Area', area: 'Blue Area, Islamabad' },
-  { id: 'parents', label: "Parents' house", icon: '👪', line: 'House 3, Street 9, F-10/4', area: 'F-10/4, Islamabad' },
+  { id: 'home', label: 'Home', icon: '🏠', line: 'House 14, Street 22, G-7/1', area: 'G-7/1, Islamabad', lat: 33.7046, lng: 73.0689 },
+  { id: 'office', label: 'Office', icon: '🏢', line: 'Plaza 5, Blue Area', area: 'Blue Area, Islamabad', lat: 33.7128, lng: 73.0639 },
+  { id: 'parents', label: "Parents' house", icon: '👪', line: 'House 3, Street 9, F-10/4', area: 'F-10/4, Islamabad', lat: 33.6953, lng: 73.0135 },
+]
+
+/** Islamabad sectors used to turn a map position into a readable address (stand-in for reverse geocoding). */
+export const SECTORS = [
+  { name: 'G-7/1', lat: 33.7046, lng: 73.0689 }, { name: 'G-7/2', lat: 33.7010, lng: 73.0625 },
+  { name: 'G-6/2', lat: 33.7168, lng: 73.0827 }, { name: 'G-8/1', lat: 33.6955, lng: 73.0520 },
+  { name: 'G-9 Markaz', lat: 33.6916, lng: 73.0308 }, { name: 'F-6/1', lat: 33.7300, lng: 73.0765 },
+  { name: 'F-7 Markaz', lat: 33.7205, lng: 73.0565 }, { name: 'F-8/2', lat: 33.7108, lng: 73.0385 },
+  { name: 'F-10/4', lat: 33.6953, lng: 73.0135 }, { name: 'E-7', lat: 33.7335, lng: 73.0595 },
+  { name: 'Blue Area', lat: 33.7128, lng: 73.0639 }, { name: 'I-8/4', lat: 33.6690, lng: 73.0760 },
 ]
 
 export const PAYMENT_METHODS = [

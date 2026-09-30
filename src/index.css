@@ -112,3 +112,25 @@ body {
   background: #10B981;
   animation: pulse-ring 1.5s ease-out infinite;
 }
+
+/* Desktop: a phone-sized frame. Real phones: edge-to-edge, no fake status bar. */
+.phone-frame {
+  width: 100%;
+  max-width: 390px;
+  height: 100dvh;
+  max-height: 844px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  border-radius: clamp(0px, calc((100dvh - 844px) * 100), 44px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 40px 120px rgba(0,0,0,0.8);
+}
+
+@media (max-width: 500px) {
+  .phone-frame {
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: env(safe-area-inset-top);
+  }
+  .fake-status { visibility: hidden; height: 12px; padding: 0; }
+}

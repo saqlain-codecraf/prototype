@@ -40,17 +40,7 @@ export default function App() {
 
   return (
     <div className="flex items-center justify-center min-h-dvh" style={{ background: '#0f172a' }}>
-      <div
-        className="relative bg-white overflow-hidden flex flex-col"
-        style={{
-          width: '390px',
-          height: '100dvh',
-          maxHeight: '844px',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 40px 120px rgba(0,0,0,0.8)',
-          borderRadius: 'clamp(0px, calc((100dvh - 844px) * 100), 44px)',
-        }}
-      >
+      <div className="phone-frame relative bg-white overflow-hidden flex flex-col">
         {screen}
       </div>
     </div>
