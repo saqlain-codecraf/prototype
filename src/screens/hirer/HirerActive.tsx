@@ -55,13 +55,15 @@ const WORKER_POS: Record<string, { x: number; y: number }> = {
   assigned: { x: 20, y: 70 }, on_way: { x: 36, y: 50 }, arrived: { x: 47, y: 44 }, started: { x: 47, y: 44 }, done: { x: 47, y: 44 },
 }
 
-export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, onReport }: {
+export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, onReport, workerAction }: {
   hj: HirerJob
   onBack: () => void
   onMessage: () => void
   onCancel: () => void
   onReview: () => void
   onReport: (reason: string) => void
+  /** Stand-in for the worker's next status button in the worker app (prototype only). */
+  workerAction?: { label: string; onClick: () => void }
 }) {
   const { job } = hj
   const w = hj.worker!
@@ -155,9 +157,21 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
         </div>
       </div>
 
-      {status === 'done' && (
+      {status === 'done' ? (
         <BottomBar>
           <Button className="w-full" onClick={onReview}><Glyph e="✅"/> Review & confirm completion</Button>
+        </BottomBar>
+      ) : workerAction && (
+        <BottomBar>
+          <div className="flex items-center gap-2 text-ui text-muted mb-3">
+            <span className="w-2 h-2 rounded-full bg-success animate-pulse flex-shrink-0"/>
+            Waiting for {w.name.split(' ')[0]} to update the job status
+          </div>
+          <button onClick={workerAction.onClick}
+            className="w-full min-h-touch px-4 py-3 rounded-btn border-2 border-dashed border-line bg-canvas text-left flex items-center gap-3 active:scale-[0.99] transition-all">
+            <span className="text-small font-bold text-muted flex-1">Prototype · act as {w.name.split(' ')[0]}</span>
+            <span className="text-ui font-bold text-brand">{workerAction.label}</span>
+          </button>
         </BottomBar>
       )}
 

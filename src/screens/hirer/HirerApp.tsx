@@ -34,12 +34,13 @@ type Route =
 const WORKER_REPLIES = ['Sure, no problem 👍', "I'll be there on time.", 'Noted, thank you!', 'Yes, I have all the tools needed.', 'On it!']
 const QUICK_REPLIES = ['Where are you now?', 'The gate is open', 'Please call on arrival', 'Thank you! 🙏']
 
-// Simulated worker progress after assignment.
-const AUTO_NEXT: Partial<Record<WorkStatus, { to: WorkStatus; ms: number }>> = {
-  assigned: { to: 'on_way', ms: 6000 },
-  on_way: { to: 'arrived', ms: 10000 },
-  arrived: { to: 'started', ms: 6000 },
-  started: { to: 'done', ms: 12000 },
+// The worker moves the job forward from the worker app. The two apps aren't connected in this
+// prototype, so the hirer screen offers a clearly-labelled control that stands in for the worker's tap.
+const WORKER_NEXT: Partial<Record<WorkStatus, { to: WorkStatus; label: string }>> = {
+  assigned: { to: 'on_way', label: "I'm on my way" },
+  on_way: { to: 'arrived', label: "I've arrived" },
+  arrived: { to: 'started', label: 'Start work' },
+  started: { to: 'done', label: 'Work finished' },
 }
 
 const DEMO_HISTORY: HirerJob[] = [
@@ -81,15 +82,7 @@ export default function HirerApp({ mode, profile: account, onSignOut, onCancel, 
     return !!t && 'id' in t && t.id === id && t.name !== 'chat'
   }
 
-  // --- Worker progress (simulated live updates) ---------------------------------------
-  useEffect(() => {
-    const timers = jobs.flatMap(hj => {
-      const n = AUTO_NEXT[hj.status as WorkStatus]
-      return n ? [setTimeout(() => advance(hj, n.to), n.ms)] : []
-    })
-    return () => timers.forEach(clearTimeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jobs])
+  // --- Worker progress: changes only when the worker updates it (no timers) -----------
 
   const advance = (hj: HirerJob, to: WorkStatus) => {
     update(hj.id, { status: to })
@@ -212,8 +205,10 @@ export default function HirerApp({ mode, profile: account, onSignOut, onCancel, 
         } else if (top.name === 'complete' && hj.status === 'done') {
           content = <HirerCompletionScreen hj={hj} onBack={pop} onDone={r => complete(id, r)} onReport={() => report('Problem with completed work')}/>
         } else if (!['completed', 'cancelled'].includes(hj.status)) {
+          const next = WORKER_NEXT[hj.status as WorkStatus]
           content = <HirerActiveScreen hj={hj} onBack={pop} onMessage={() => push({ name: 'chat', id })} onCancel={() => cancel(id, false)}
-            onReview={() => push({ name: 'complete', id })} onReport={report}/>
+            onReview={() => push({ name: 'complete', id })} onReport={report}
+            workerAction={next && { label: next.label, onClick: () => advance(hj, next.to) }}/>
         }
       }
     }
