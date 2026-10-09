@@ -116,7 +116,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
         <div className="flex-1"/>
         <div className="bg-surface rounded-full px-3 py-2 shadow-md flex items-center gap-1.5">
           <span className="w-2 h-2 bg-brand rounded-full animate-pulse"/>
-          <span className="text-xs font-bold text-ink">{notified} workers notified</span>
+          <span className="text-small font-bold text-ink">{notified} workers notified</span>
         </div>
       </div>
 
@@ -134,23 +134,23 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
                   <Avatar name={b.c.name} size={44}/>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-sm text-ink truncate">{b.c.name}</span>
+                      <span className="font-bold text-body text-ink truncate">{b.c.name}</span>
                       {b.c.verified && <ShieldIcon size={12} className="text-brand flex-shrink-0"/>}
                       {b.rebid && <Badge label="New offer" color="purple"/>}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-muted mt-0.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 text-small text-muted mt-0.5 whitespace-nowrap">
                       <Rating value={b.c.rating}/><span>· {b.c.jobs} jobs</span>
                     </div>
-                    <div className="flex items-center gap-2.5 text-[11px] text-muted mt-0.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2.5 text-small text-muted mt-0.5 whitespace-nowrap">
                       <span className="flex items-center gap-0.5"><MapPinIcon size={10}/>{b.c.distanceKm} km</span>
                       <span className="flex items-center gap-0.5"><ClockIcon size={10}/>{b.c.etaMin} min</span>
-                      <span className={`flex items-center gap-0.5 ${toolsWarn ? 'text-warn-ink font-semibold' : 'text-brand'}`}><ToolIcon size={10}/>{b.c.hasTools ? 'Tools' : 'No tools'}</span>
+                      <span className={`flex items-center gap-0.5 ${toolsWarn ? 'text-warn-ink font-bold' : 'text-brand'}`}><ToolIcon size={10}/>{b.c.hasTools ? 'Tools' : 'No tools'}</span>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="display text-lg text-ink leading-tight">{rs(b.amount)}</div>
-                    <div className="text-[10px] text-subtle">{job.payType === 'hourly' ? 'per hour' : 'total'}</div>
-                    <span className={`inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${diff > 0 ? 'bg-warn text-warn-ink' : diff < 0 ? 'bg-mint text-brand' : 'bg-divider text-muted'}`}>
+                    <div className="text-tab text-subtle">{job.payType === 'hourly' ? 'per hour' : 'total'}</div>
+                    <span className={`inline-block mt-0.5 text-tab font-bold px-1.5 py-0.5 rounded-full ${diff > 0 ? 'bg-warn text-warn-ink' : diff < 0 ? 'bg-mint text-brand' : 'bg-divider text-muted'}`}>
                       {diff === 0 ? 'Your price' : `${diff > 0 ? '+' : ''}${diff}%`}
                     </span>
                   </div>
@@ -174,21 +174,21 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
           <span className="w-11 h-11 bg-mint rounded-tile flex items-center justify-center text-2xl text-brand"><Glyph e={jobEmoji(job)}/></span>
           <div className="flex-1 min-w-0">
             <div className="display text-ink truncate">{jobTitle(job)}</div>
-            <div className="text-xs text-muted truncate">{hours}h · {job.dateLabel}, {job.time} · {job.area.split(',')[0]}</div>
+            <div className="text-small text-muted truncate">{hours}h · {job.dateLabel}, {job.time} · {job.area.split(',')[0]}</div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] text-subtle font-semibold">Your offer</div>
-            <div className="display text-brand text-sm">{rs(offer)}{job.payType === 'hourly' ? '/hr' : ''}</div>
+            <div className="text-tab text-subtle font-bold">Your offer</div>
+            <div className="display text-brand text-body">{rs(offer)}{job.payType === 'hourly' ? '/hr' : ''}</div>
           </div>
         </div>
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-divider">
-          <div className="flex items-center gap-2 text-sm font-bold text-ink">
+          <div className="flex items-center gap-2 text-body font-bold text-ink">
             <span className="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin"/>
             {bids.length
               ? `${bids.length} live offer${bids.length > 1 ? 's' : ''} · pick one`
               : streamDone ? 'Waiting for more offers…' : 'Finding workers near you…'}
           </div>
-          <button onClick={() => setConfirmCancel(true)} className="text-xs font-bold text-danger">Cancel</button>
+          <button onClick={() => setConfirmCancel(true)} className="text-small font-bold text-danger">Cancel</button>
         </div>
       </div>
 
@@ -206,7 +206,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
               <Avatar name={selected.c.name} size={56}/>
               <div className="flex-1">
                 <div className="display text-ink">{selected.c.name}</div>
-                <div className="flex items-center gap-1.5"><Rating value={selected.c.rating}/><span className="text-xs text-subtle">· {selected.c.jobs} completed jobs</span></div>
+                <div className="flex items-center gap-1.5"><Rating value={selected.c.rating}/><span className="text-small text-subtle">· {selected.c.jobs} completed jobs</span></div>
                 <div className="flex gap-1 mt-1"><Badge label="ID verified" color="green"/>{selected.c.hasTools && <Badge label="Own tools" color="blue"/>}</div>
               </div>
             </div>
@@ -218,7 +218,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
               <div className="border-t border-divider mt-1 pt-1"><Row label="Estimated total" value={rs(totalFor(job, selected.amount))} strong/></div>
             </div>
             {job.toolsRequired && !selected.c.hasTools && (
-              <div className="mt-3 p-3 bg-warn rounded-tile text-xs text-warn-ink font-semibold"><Glyph e="⚠️"/> This worker doesn't have their own tools — you asked for a worker who brings tools.</div>
+              <div className="mt-3 p-3 bg-warn rounded-tile text-small text-warn-ink font-bold"><Glyph e="⚠️"/> This worker doesn't have their own tools — you asked for a worker who brings tools.</div>
             )}
             <Button className="w-full mt-5" onClick={() => setSheetStep('payment')}>Continue to payment</Button>
           </div>
@@ -230,12 +230,12 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
                 <button key={p.id} onClick={() => setMethod(p.id)}
                   className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${method === p.id ? 'border-brand bg-mint' : 'border-divider'}`}>
                   <span className="text-2xl"><Glyph e={p.icon}/></span>
-                  <div className="flex-1"><div className="font-bold text-sm text-ink">{p.label}</div><div className="text-xs text-muted">{p.sub}</div></div>
+                  <div className="flex-1"><div className="font-bold text-body text-ink">{p.label}</div><div className="text-small text-muted">{p.sub}</div></div>
                   <Radio checked={method === p.id}/>
                 </button>
               ))}
             </div>
-            <div className="mt-4 p-3 bg-canvas rounded-tile text-xs text-muted">
+            <div className="mt-4 p-3 bg-canvas rounded-tile text-small text-muted">
               {method === 'cash' ? 'Pay the worker in cash once the job is done.' : 'You’ll confirm the payment after the worker finishes. Nothing is charged now.'}
             </div>
             <div className="flex gap-2 mt-4">

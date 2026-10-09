@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Avatar, Badge, Button, EmptyState, IconTile, Sheet, StatusBar, Toggle } from '../../components/ui'
+import { Avatar, Badge, Button, EmptyState, IconTile, ScreenHeader, Sheet, StatusBar, Toggle } from '../../components/ui'
 import { ChevronRight, DollarIcon, EditIcon, ToolIcon, ShieldIcon, Glyph } from '../../components/Icons'
 import { CATEGORIES, rs } from '../../data/catalog'
 import { jobEmoji, jobTitle } from '../../data/jobs'
@@ -30,30 +30,28 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
 
   return (
     <div className="flex flex-col h-full bg-canvas relative">
-      <div className="bg-brand flex-shrink-0">
-        <StatusBar light/>
-        <div className="px-5 pb-5 pt-1">
-          <div className="display text-white text-xl mb-4">Earnings</div>
-          <div className="bg-white/15 rounded-card p-4">
-            <div className="text-white text-xs font-semibold">Available balance</div>
-            <div className="text-3xl display text-white mt-0.5">{rs(balance)}</div>
-            <div className="flex items-center justify-between mt-3">
-              <div className="text-white text-xs">Today {rs(today)} · Week {rs(week)}</div>
-              <button disabled={!balance} onClick={() => setSheet(true)} className="px-3 py-1.5 bg-surface text-brand text-xs font-bold rounded-lg disabled:opacity-50">Withdraw</button>
+      <ScreenHeader title="Earnings">
+        <div className="px-screen pb-5">
+          <div className="bg-white/10 border border-white/15 rounded-card p-4">
+            <div className="text-white/75 text-ui font-bold">Available balance</div>
+            <div className="display text-price text-white mt-1">{rs(balance)}</div>
+            <div className="flex items-center justify-between gap-3 mt-3">
+              <div className="text-white/75 text-small">Today {rs(today)} · Week {rs(week)}</div>
+              <Button variant="accent" size="sm" disabled={!balance} onClick={() => setSheet(true)}>Withdraw</Button>
             </div>
           </div>
         </div>
-      </div>
+      </ScreenHeader>
 
       <div className="flex-1 overflow-y-auto px-5 py-4">
         <div className="bg-surface rounded-card p-4 border border-divider mb-4">
-          <div className="text-sm font-bold text-label mb-4">Last 7 days</div>
+          <div className="text-body font-bold text-label mb-4">Last 7 days</div>
           <div className="flex items-end gap-2 h-32">
             {days.map((d, i) => (
               <div key={d} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-                {perDay[i] > 0 && <span className="text-[9px] font-bold text-muted">{Math.round(perDay[i] / 1000)}k</span>}
+                {perDay[i] > 0 && <span className="text-tab font-bold text-muted">{Math.round(perDay[i] / 1000)}k</span>}
                 <div className="w-full rounded-t-lg transition-all duration-700" style={{ height: `${Math.max(4, (perDay[i] / max) * 96)}px`, background: d === 0 ? '#10B981' : '#D1FAE5' }}/>
-                <span className={`text-[10px] font-semibold ${d === 0 ? 'text-brand' : 'text-subtle'}`}>{dayLabel(d)}</span>
+                <span className={`text-tab font-bold ${d === 0 ? 'text-brand' : 'text-subtle'}`}>{dayLabel(d)}</span>
               </div>
             ))}
           </div>
@@ -67,7 +65,7 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
             <div key={s.l} className="bg-surface rounded-card p-4 border border-divider">
               <IconTile size={44}><Glyph e={s.e} size={22}/></IconTile>
               <div className="display text-ink text-lg mt-1">{s.v}</div>
-              <div className="text-[11px] text-subtle font-semibold">{s.l}</div>
+              <div className="text-small text-subtle font-bold">{s.l}</div>
             </div>
           ))}
         </div>
@@ -80,8 +78,8 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
             <div key={p.id} className="flex items-center gap-3 px-4 py-3 border-b border-divider last:border-0">
               <div className="w-10 h-10 bg-mint rounded-tile flex items-center justify-center text-lg text-brand"><Glyph e={p.emoji}/></div>
               <div className="flex-1">
-                <div className="font-semibold text-sm text-ink">{p.title}</div>
-                <div className="text-xs text-subtle">{p.daysAgo === 0 ? 'Today' : p.daysAgo === 1 ? 'Yesterday' : `${p.daysAgo} days ago`}</div>
+                <div className="font-bold text-body text-ink">{p.title}</div>
+                <div className="text-small text-subtle">{p.daysAgo === 0 ? 'Today' : p.daysAgo === 1 ? 'Yesterday' : `${p.daysAgo} days ago`}</div>
               </div>
               <div className="font-bold text-brand">+{rs(p.amount)}</div>
             </div>
@@ -91,12 +89,12 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
 
       <Sheet open={sheet} onClose={() => setSheet(false)} title="Withdraw earnings">
         <div className="text-center bg-canvas rounded-card p-5 mb-4">
-          <div className="text-xs text-muted">Amount</div>
+          <div className="text-small text-muted">Amount</div>
           <div className="text-3xl display text-ink">{rs(balance)}</div>
         </div>
         <div className="flex items-center gap-3 p-4 border-2 border-brand bg-mint rounded-card mb-5 text-brand">
           <span className="text-2xl"><Glyph e="📱"/></span>
-          <div className="flex-1"><div className="font-bold text-sm">JazzCash</div><div className="text-xs text-muted">•••• 4521 · arrives instantly</div></div>
+          <div className="flex-1"><div className="font-bold text-body">JazzCash</div><div className="text-small text-muted">•••• 4521 · arrives instantly</div></div>
           <DollarIcon size={18} className="text-brand"/>
         </div>
         <Button className="w-full" onClick={() => { onWithdraw(balance); setWithdrawn(w => w + balance); setSheet(false) }}>Withdraw {rs(balance)}</Button>
@@ -123,17 +121,14 @@ export function WorkerProfile({ profile, skills, verification, online, onToggleO
 
   return (
     <div className="flex flex-col h-full bg-canvas">
-      <div className="bg-surface border-b border-divider flex-shrink-0">
-        <StatusBar/>
-        <div className="px-5 pb-3 pt-1 display text-ink text-xl">Profile</div>
-      </div>
+      <ScreenHeader title="Profile"/>
       <div className="flex-1 overflow-y-auto">
         <div className="bg-surface mb-3 px-5 py-5">
           <div className="flex items-center gap-4">
             <Avatar name={profile.name} size={72}/>
             <div className="flex-1 min-w-0">
               <div className="display text-ink text-lg truncate">{profile.name}</div>
-              <div className="text-xs text-muted truncate">{profile.phone} · {profile.city}</div>
+              <div className="text-small text-muted truncate">{profile.phone} · {profile.city}</div>
               <div className="flex items-center gap-1.5 mt-2">
                 {verification === 'verified' ? <Badge label="✓ Verified" color="green"/> : <Badge label="Verification pending" color="amber" dot/>}
                 {jobsDone >= 3 && <Badge label="Top worker" color="blue"/>}
@@ -144,7 +139,7 @@ export function WorkerProfile({ profile, skills, verification, online, onToggleO
             {[{ l: 'Jobs done', v: String(jobsDone) }, { l: 'Rating', v: rating ? rating.toFixed(1) : 'New' }, { l: 'Skills', v: String(Object.keys(skills).length) }].map(s => (
               <div key={s.l} className="bg-canvas rounded-tile py-3 text-center">
                 <div className="display text-ink">{s.v}</div>
-                <div className="text-[11px] text-subtle">{s.l}</div>
+                <div className="text-small text-subtle">{s.l}</div>
               </div>
             ))}
           </div>
@@ -153,8 +148,8 @@ export function WorkerProfile({ profile, skills, verification, online, onToggleO
         <div className="bg-surface mb-3 px-5 py-4 flex items-center gap-3">
           <span className="text-xl"><span className={`block w-3.5 h-3.5 rounded-full ring-4 ${online ? 'bg-success ring-success/25' : 'bg-subtle ring-white/20'}`}/></span>
           <div className="flex-1">
-            <div className="font-bold text-sm text-ink">Availability</div>
-            <div className="text-xs text-muted">{online ? 'Online — receiving job requests' : 'Offline — not receiving jobs'}</div>
+            <div className="font-bold text-body text-ink">Availability</div>
+            <div className="text-small text-muted">{online ? 'Online — receiving job requests' : 'Offline — not receiving jobs'}</div>
           </div>
           <Toggle on={online} onChange={onToggleOnline}/>
         </div>
@@ -162,17 +157,17 @@ export function WorkerProfile({ profile, skills, verification, online, onToggleO
         <div className="bg-surface mb-3 px-5 py-4">
           <div className="flex items-center justify-between mb-3">
             <div className="font-bold text-ink">My skills</div>
-            <button onClick={onEditSkills} className="flex items-center gap-1 text-brand text-sm font-bold"><EditIcon size={14}/> Edit</button>
+            <button onClick={onEditSkills} className="flex items-center gap-1 text-brand text-body font-bold"><EditIcon size={14}/> Edit</button>
           </div>
-          {groups.length === 0 && <div className="text-sm text-subtle">No skills yet — add some to get matched with jobs.</div>}
+          {groups.length === 0 && <div className="text-body text-subtle">No skills yet — add some to get matched with jobs.</div>}
           {groups.map(({ c, subs }) => (
             <div key={c.id} className="mb-3 last:mb-0">
               <div className="flex items-center gap-2 mb-1.5">
-                <span><Glyph e={c.emoji}/></span><span className="font-semibold text-sm text-ink">{c.name}</span>
+                <span><Glyph e={c.emoji}/></span><span className="font-bold text-body text-ink">{c.name}</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {subs.map(s => (
-                  <span key={s.id} className="px-2.5 py-1 bg-mint text-brand text-xs font-semibold rounded-full border border-line flex items-center gap-1">
+                  <span key={s.id} className="px-2.5 py-1 bg-mint text-brand text-small font-bold rounded-full border border-line flex items-center gap-1">
                     ✓ {s.name}{skills[s.id]?.tools && <ToolIcon size={11}/>}
                   </span>
                 ))}
@@ -184,10 +179,10 @@ export function WorkerProfile({ profile, skills, verification, online, onToggleO
         <div className="bg-surface mb-3 px-5 py-4">
           <div className="font-bold text-ink mb-2 flex items-center gap-2"><ToolIcon size={16}/> My tools</div>
           {tools.length === 0 ? (
-            <div className="text-sm text-subtle">Mark “I have the tools” on a skill to list them here.</div>
+            <div className="text-body text-subtle">Mark “I have the tools” on a skill to list them here.</div>
           ) : (
             <div className="flex flex-wrap gap-1.5">
-              {tools.map(t => <span key={t} className="px-2.5 py-1 bg-divider text-label text-xs font-semibold rounded-full"><Glyph e="🔧"/> {t}</span>)}
+              {tools.map(t => <span key={t} className="px-2.5 py-1 bg-divider text-label text-small font-bold rounded-full"><Glyph e="🔧"/> {t}</span>)}
             </div>
           )}
         </div>
@@ -200,8 +195,8 @@ export function WorkerProfile({ profile, skills, verification, online, onToggleO
             <button key={r.l} onClick={r.go} className="w-full flex items-center gap-4 px-5 py-4 border-b border-divider last:border-0 active:bg-canvas">
               <span className="w-9 h-9 bg-mint rounded-tile flex items-center justify-center text-brand">{r.icon}</span>
               <div className="flex-1 text-left">
-                <div className="font-semibold text-sm text-ink">{r.l}</div>
-                <div className="text-xs text-subtle">{r.s}</div>
+                <div className="font-bold text-body text-ink">{r.l}</div>
+                <div className="text-small text-subtle">{r.s}</div>
               </div>
               <ChevronRight size={16} className="text-subtle"/>
             </button>
@@ -211,7 +206,7 @@ export function WorkerProfile({ profile, skills, verification, online, onToggleO
         <div className="bg-surface mb-8">
           <button onClick={onSignOut} className="w-full flex items-center gap-4 px-5 py-4 text-danger active:bg-danger-tint">
             <span className="text-xl"><Glyph e="🚪"/></span>
-            <div className="font-bold text-sm">Sign out</div>
+            <div className="font-bold text-body">Sign out</div>
           </button>
         </div>
       </div>

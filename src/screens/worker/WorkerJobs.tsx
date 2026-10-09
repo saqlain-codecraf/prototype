@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Avatar, Badge, Button, CountdownBar, EmptyState, Label, MapView, NumberStepper, PhotoThumb, Rating, StatusBar } from '../../components/ui'
+import { Avatar, Badge, Button, CountdownBar, EmptyState, Label, MapView, NumberStepper, PhotoThumb, Rating, ScreenHeader, SegmentTabs, StatusBar } from '../../components/ui'
 import { ChevronLeft, ClockIcon, MapPinIcon, ToolIcon, AlertCircle, StarFilled, CheckCircle, Glyph } from '../../components/Icons'
 import { findSub, rs } from '../../data/catalog'
 import { jobCategoryName, jobEmoji, jobHours, jobTitle, jobUnitPrice, priceLine, totalFor, unitLabel, WORK_STEPS, stepIndex, type Job } from '../../data/jobs'
@@ -23,11 +23,11 @@ export function JobCard({ job, bid, match, onOpen }: { job: Job; bid?: Bid; matc
         <div className="w-12 h-12 bg-mint rounded-tile flex items-center justify-center text-2xl flex-shrink-0 text-brand"><Glyph e={jobEmoji(job)}/></div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-bold text-sm text-ink">{jobTitle(job)}</span>
+            <span className="font-bold text-body text-ink">{jobTitle(job)}</span>
             {job.urgent && <Badge label="Urgent" color="red"/>}
           </div>
-          <div className="text-xs text-muted mt-0.5">{jobCategoryName(job)} · {job.area.split(',')[0]}</div>
-          <div className="flex items-center gap-3 mt-2 text-[11px] text-muted">
+          <div className="text-small text-muted mt-0.5">{jobCategoryName(job)} · {job.area.split(',')[0]}</div>
+          <div className="flex items-center gap-3 mt-2 text-small text-muted">
             <span className="flex items-center gap-1"><MapPinIcon size={11}/>{job.distanceKm} km</span>
             <span className="flex items-center gap-1"><ClockIcon size={11}/>{jobHours(job)}h · {job.dateLabel}</span>
             <span className={`flex items-center gap-1 ${job.toolsRequired ? 'text-warn-ink' : 'text-muted'}`}><ToolIcon size={11}/>{job.toolsRequired ? 'Bring tools' : 'Tools provided'}</span>
@@ -38,8 +38,8 @@ export function JobCard({ job, bid, match, onOpen }: { job: Job; bid?: Bid; matc
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <div className="display text-sm text-ink">{rs(unit)}</div>
-          <div className="text-[10px] text-subtle">{job.payType === 'hourly' ? 'per hour' : 'fixed'}</div>
+          <div className="display text-body text-ink">{rs(unit)}</div>
+          <div className="text-tab text-subtle">{job.payType === 'hourly' ? 'per hour' : 'fixed'}</div>
         </div>
       </div>
     </button>
@@ -72,22 +72,16 @@ export function JobsScreen({ feed, bids, active, completed, history, online, ski
 
   return (
     <div className="flex flex-col h-full bg-canvas">
-      <div className="bg-surface border-b border-divider flex-shrink-0">
-        <StatusBar/>
-        <div className="px-5 py-3 flex items-center justify-between">
-          <div className="display text-ink text-xl">My Jobs</div>
-          <Badge label={online ? 'Online' : 'Offline'} color={online ? 'green' : 'gray'} dot={online}/>
+      <ScreenHeader title="Jobs" right={
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-small font-bold ${online ? 'bg-success/20 text-white' : 'bg-white/10 text-white/80'}`}>
+          <span className={`w-2 h-2 rounded-full ${online ? 'bg-success animate-pulse' : 'bg-white/50'}`}/>{online ? 'Online' : 'Offline'}
+        </span>
+      }>
+        <div className="px-screen pb-4">
+          <SegmentTabs value={tab} onChange={setTab}
+            tabs={[{ id: 'open', label: 'Open', count: counts.open }, { id: 'active', label: 'Active', count: counts.active }, { id: 'completed', label: 'Done', count: counts.completed }]}/>
         </div>
-        <div className="flex px-5 gap-1">
-          {(['open', 'active', 'completed'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 text-sm font-bold capitalize border-b-2 transition-all flex items-center justify-center gap-1.5 ${tab === t ? 'border-brand text-brand' : 'border-transparent text-subtle'}`}>
-              {t}
-              <span className={`text-[10px] min-w-4 px-1 rounded-full ${tab === t ? 'bg-mint text-brand' : 'bg-divider text-muted'}`}>{counts[t]}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      </ScreenHeader>
 
       <div className="flex-1 overflow-y-auto px-5 py-4">
         {tab === 'open' && (
@@ -95,14 +89,14 @@ export function JobsScreen({ feed, bids, active, completed, history, online, ski
             {!online && (
               <div className="flex items-center gap-3 p-3 bg-ink rounded-card mb-4">
                 <span className="text-xl"><Glyph e="😴"/></span>
-                <div className="flex-1 text-xs text-white/80">You're offline. Go online to get new jobs and bid.</div>
+                <div className="flex-1 text-small text-white/80">You're offline. Go online to get new jobs and bid.</div>
                 <Button size="sm" onClick={onGoOnline}>Go online</Button>
               </div>
             )}
             {feed.length > 0 && (
               <div className="flex gap-2 mb-3">
                 {[{ v: false, l: 'All nearby' }, { v: true, l: `My bids (${Object.keys(bids).filter(id => feed.some(j => j.id === id)).length})` }].map(o => (
-                  <button key={o.l} onClick={() => setOnlyBids(o.v)} className={`px-3 py-1.5 rounded-full text-xs font-bold ${onlyBids === o.v ? 'bg-ink text-white' : 'bg-surface text-muted border border-line'}`}>{o.l}</button>
+                  <button key={o.l} onClick={() => setOnlyBids(o.v)} className={`px-3 py-1.5 rounded-full text-small font-bold ${onlyBids === o.v ? 'bg-ink text-white' : 'bg-surface text-muted border border-line'}`}>{o.l}</button>
                 ))}
               </div>
             )}
@@ -147,14 +141,14 @@ function CompletedRow({ emoji, title, sub, amount, rating, fresh }: { emoji: str
     <div className={`bg-surface rounded-card p-4 border ${fresh ? 'border-brand' : 'border-divider'} flex items-center gap-3`}>
       <div className="w-12 h-12 bg-mint rounded-tile flex items-center justify-center text-2xl text-brand">{emoji}</div>
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-sm text-ink truncate">{title}</div>
-        <div className="text-xs text-muted truncate">{sub}</div>
+        <div className="font-bold text-body text-ink truncate">{title}</div>
+        <div className="text-small text-muted truncate">{sub}</div>
         <div className="flex items-center gap-0.5 mt-1">
           {[1, 2, 3, 4, 5].map(i => <StarFilled key={i} size={11} className={i <= rating ? 'text-accent' : 'text-subtle'}/>)}
         </div>
       </div>
       <div className="text-right">
-        <div className="display text-sm text-brand">+{rs(amount)}</div>
+        <div className="display text-body text-brand">+{rs(amount)}</div>
         <Badge label="Paid" color="green"/>
       </div>
     </div>
@@ -167,15 +161,15 @@ export function ActiveJobCard({ m, onOpen, dark }: { m: MyJob; onOpen: () => voi
     <button onClick={onOpen} className={`w-full rounded-card p-4 text-left active:scale-[0.98] transition-all ${dark ? 'bg-brand text-white' : 'bg-surface border-2 border-brand shadow-sm'}`}>
       <div className="flex items-center justify-between mb-2">
         <Badge label="Active job" color={dark ? 'white' : 'green'} dot/>
-        <span className={`text-xs font-bold ${dark ? 'text-white' : 'text-brand'}`}>{WORK_STEPS[idx].label}</span>
+        <span className={`text-small font-bold ${dark ? 'text-white' : 'text-brand'}`}>{WORK_STEPS[idx].label}</span>
       </div>
       <div className="flex items-center gap-3">
         <span className="text-2xl"><Glyph e={jobEmoji(m.job)}/></span>
         <div className="flex-1 min-w-0">
           <div className={`display truncate ${dark ? 'text-white' : 'text-ink'}`}>{jobTitle(m.job)}</div>
-          <div className={`text-xs truncate ${dark ? 'text-white' : 'text-muted'}`}>{m.job.dateLabel} · {m.job.time} · {m.job.area.split(',')[0]}</div>
+          <div className={`text-small truncate ${dark ? 'text-white' : 'text-muted'}`}>{m.job.dateLabel} · {m.job.time} · {m.job.area.split(',')[0]}</div>
         </div>
-        <div className={`display text-sm ${dark ? 'text-white' : 'text-ink'}`}>{rs(totalFor(m.job, m.unit))}</div>
+        <div className={`display text-body ${dark ? 'text-white' : 'text-ink'}`}>{rs(totalFor(m.job, m.unit))}</div>
       </div>
       <div className="flex gap-1 mt-3">
         {WORK_STEPS.slice(0, 5).map((s, i) => (
@@ -232,7 +226,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
         </button>
         <div className="absolute bottom-6 left-4 bg-surface rounded-tile px-3 py-1.5 shadow-md flex items-center gap-1.5">
           <MapPinIcon size={12} className="text-brand"/>
-          <span className="text-xs font-bold text-ink">{job.distanceKm} km · ~{Math.round(job.distanceKm * 4)} min</span>
+          <span className="text-small font-bold text-ink">{job.distanceKm} km · ~{Math.round(job.distanceKm * 4)} min</span>
         </div>
       </MapView>
 
@@ -249,9 +243,9 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
               </div>
             </div>
             <div className="bg-mint rounded-tile px-3 py-1.5 text-right flex-shrink-0 text-brand">
-              <div className="text-[10px] text-brand font-semibold">Hirer offers</div>
+              <div className="text-tab text-brand font-bold">Hirer offers</div>
               <div className="text-brand display">{rs(offer)}</div>
-              <div className="text-brand text-[10px]">{job.payType === 'hourly' ? 'per hour' : 'total'}</div>
+              <div className="text-brand text-tab">{job.payType === 'hourly' ? 'per hour' : 'total'}</div>
             </div>
           </div>
 
@@ -263,8 +257,8 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
             ].map(x => (
               <div key={x.l} className="bg-canvas rounded-tile p-2.5">
                 <div className="text-base"><Glyph e={x.icon}/></div>
-                <div className="text-[10px] text-subtle font-semibold mt-0.5">{x.l}</div>
-                <div className="text-xs font-bold text-ink">{x.v}</div>
+                <div className="text-tab text-subtle font-bold mt-0.5">{x.l}</div>
+                <div className="text-small font-bold text-ink">{x.v}</div>
               </div>
             ))}
           </div>
@@ -273,9 +267,9 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
             <Label>Services requested</Label>
             <div className="space-y-1.5">
               {job.lines.map(l => (
-                <div key={l.subId} className="flex items-center justify-between text-sm bg-canvas rounded-tile px-3 py-2">
-                  <span className="font-semibold text-ink">{findSub(l.subId)?.sub.name}</span>
-                  <span className="text-muted text-xs">{l.hours}h</span>
+                <div key={l.subId} className="flex items-center justify-between text-body bg-canvas rounded-tile px-3 py-2">
+                  <span className="font-bold text-ink">{findSub(l.subId)?.sub.name}</span>
+                  <span className="text-muted text-small">{l.hours}h</span>
                 </div>
               ))}
             </div>
@@ -283,7 +277,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
 
           <div className="mt-4">
             <Label>Description</Label>
-            <p className="text-sm text-muted leading-relaxed">{job.description}</p>
+            <p className="text-body text-muted leading-relaxed">{job.description}</p>
             {job.photos.length > 0 && (
               <div className="flex gap-2 mt-3">{job.photos.map((p, i) => <PhotoThumb key={i} src={p}/>)}</div>
             )}
@@ -292,13 +286,13 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
           <div className="mt-4 flex items-center gap-3 p-3 bg-canvas rounded-card">
             <Avatar name={job.hirer.name} size={40} tone="blue"/>
             <div className="flex-1">
-              <div className="font-bold text-sm text-ink">{job.hirer.name}</div>
-              <div className="flex items-center gap-2"><Rating value={job.hirer.rating}/><span className="text-xs text-subtle">· {job.hirer.jobs} jobs posted</span></div>
+              <div className="font-bold text-body text-ink">{job.hirer.name}</div>
+              <div className="flex items-center gap-2"><Rating value={job.hirer.rating}/><span className="text-small text-subtle">· {job.hirer.jobs} jobs posted</span></div>
             </div>
             <Badge label="Verified" color="green"/>
           </div>
 
-          <div className="mt-3 flex items-start gap-2 text-[11px] text-muted">
+          <div className="mt-3 flex items-start gap-2 text-small text-muted">
             <MapPinIcon size={12} className="mt-0.5 text-subtle"/>
             <span>{job.area} · exact address is shared once you're assigned</span>
           </div>
@@ -309,7 +303,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
           {taken ? (
             <div className="p-4 rounded-card bg-divider text-center">
               <div className="font-bold text-label">This job was assigned to another worker</div>
-              <div className="text-xs text-muted mt-1">Keep an eye out — new jobs arrive all the time.</div>
+              <div className="text-small text-muted mt-1">Keep an eye out — new jobs arrive all the time.</div>
             </div>
           ) : pending ? (
             <div className="p-4 rounded-card bg-warn border border-accent anim-fade-in">
@@ -320,7 +314,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
                 </div>
                 <div>
                   <div className="font-bold text-warn-ink">Waiting for {job.hirer.name.split(' ')[0]}…</div>
-                  <div className="text-xs text-warn-ink">Your bid: <b>{rs(bid!.amount)}{unit}</b> · usually responds in seconds</div>
+                  <div className="text-small text-warn-ink">Your bid: <b>{rs(bid!.amount)}{unit}</b> · usually responds in seconds</div>
                 </div>
               </div>
               <CountdownBar seconds={4} color="bg-accent"/>
@@ -331,11 +325,11 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
                 <div className="flex items-start gap-2.5 p-3 bg-danger-tint border border-danger-tint rounded-tile mb-4 anim-slide-up">
                   <AlertCircle size={18} className="text-danger mt-0.5 flex-shrink-0"/>
                   <div className="flex-1">
-                    <div className="text-sm font-bold text-danger">Your bid was declined</div>
-                    <div className="text-xs text-danger">The job is still open — send a new bid closer to the hirer's offer.</div>
+                    <div className="text-body font-bold text-danger">Your bid was declined</div>
+                    <div className="text-small text-danger">The job is still open — send a new bid closer to the hirer's offer.</div>
                     <div className="flex gap-1.5 mt-2 flex-wrap">
                       {bid!.history.map((h, i) => (
-                        <span key={i} className="text-[10px] font-bold bg-surface text-danger px-2 py-0.5 rounded-full line-through">{rs(h)}</span>
+                        <span key={i} className="text-tab font-bold bg-surface text-danger px-2 py-0.5 rounded-full line-through">{rs(h)}</span>
                       ))}
                     </div>
                   </div>
@@ -344,10 +338,10 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
 
               <div className="flex items-center justify-between mb-3">
                 <Label>{rejected ? 'Your new bid' : 'Your bid'}</Label>
-                <span className="text-[11px] text-subtle">Market {rs(low)}–{rs(high)}</span>
+                <span className="text-small text-subtle">Market {rs(low)}–{rs(high)}</span>
               </div>
               <NumberStepper value={amount} onChange={setAmount} min={low} max={high} step={step} format={v => `${rs(v)}${job.payType === 'hourly' ? '/hr' : ''}`}/>
-              <div className="text-center text-xs text-muted mt-1">
+              <div className="text-center text-small text-muted mt-1">
                 {job.payType === 'hourly' ? <>You'd earn about <b className="text-ink">{rs(totalFor(job, amount))}</b> for {hours}h</> : 'Total for the whole job'}
               </div>
               <div className="h-1.5 bg-line rounded-full mt-3 relative">
@@ -357,7 +351,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
               <div className="flex justify-center gap-2 mt-4 flex-wrap">
                 {[offer, round50(offer * 1.05), round50(offer * 1.1), round50(offer * 1.2)].map((v, i) => (
                   <button key={v} onClick={() => setAmount(v)}
-                    className={`px-3 py-1.5 rounded-tile text-xs font-bold transition-all ${amount === v ? 'bg-brand text-white' : 'bg-surface text-muted border border-line'}`}>
+                    className={`px-3 py-1.5 rounded-tile text-small font-bold transition-all ${amount === v ? 'bg-brand text-white' : 'bg-surface text-muted border border-line'}`}>
                     {i === 0 ? 'Offer · ' : ''}{rs(v)}
                   </button>
                 ))}
@@ -373,7 +367,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
             <Button className="w-full" onClick={onGoOnline}>Go online to bid</Button>
           ) : !verified ? (
             <div className="text-center">
-              <div className="text-xs text-warn-ink font-semibold mb-2"><Glyph e="⏳"/> Your documents are being verified — bidding unlocks shortly</div>
+              <div className="text-small text-warn-ink font-bold mb-2"><Glyph e="⏳"/> Your documents are being verified — bidding unlocks shortly</div>
               <Button className="w-full" disabled>Place bid</Button>
             </div>
           ) : (

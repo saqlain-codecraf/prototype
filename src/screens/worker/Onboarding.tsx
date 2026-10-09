@@ -62,23 +62,23 @@ export function DocumentsScreen({ docs, onChange, step, total, onBack, onNext, s
         {inOnboarding ? (
           <>
             <h2 className="text-xl display text-ink mb-1">Upload your documents</h2>
-            <p className="text-muted text-sm mb-4">Hirers only see a “Verified” badge — never your documents.</p>
+            <p className="text-muted text-body mb-4">Hirers only see a “Verified” badge — never your documents.</p>
           </>
         ) : (
           <div className={`flex items-center gap-3 p-4 rounded-card mb-4 ${status === 'verified' ? 'bg-mint' : 'bg-warn'}`}>
             <span className="text-2xl"><Glyph e={status === 'verified' ? '✅' : '⏳'}/></span>
             <div>
-              <div className={`font-bold text-sm ${status === 'verified' ? 'text-brand' : 'text-warn-ink'}`}>
+              <div className={`font-bold text-body ${status === 'verified' ? 'text-brand' : 'text-warn-ink'}`}>
                 {status === 'verified' ? 'Your identity is verified' : 'Verification in progress'}
               </div>
-              <div className="text-xs text-muted">{status === 'verified' ? 'You can bid on all jobs.' : 'Usually takes a few minutes.'}</div>
+              <div className="text-small text-muted">{status === 'verified' ? 'You can bid on all jobs.' : 'Usually takes a few minutes.'}</div>
             </div>
           </div>
         )}
 
         <div className="flex items-start gap-2.5 p-3 bg-mint rounded-tile mb-5 text-brand">
           <AlertCircle size={16} className="text-brand mt-0.5 flex-shrink-0"/>
-          <p className="text-xs text-brand">Take clear photos in good light. All four corners of the card should be visible.</p>
+          <p className="text-small text-brand">Take clear photos in good light. All four corners of the card should be visible.</p>
         </div>
 
         <div className="space-y-3">
@@ -93,10 +93,10 @@ export function DocumentsScreen({ docs, onChange, step, total, onBack, onNext, s
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-ink">{d.title}</span>
+                      <span className="font-bold text-body text-ink">{d.title}</span>
                       {d.required ? <Badge label="Required" color="red"/> : <Badge label="Optional" color="gray"/>}
                     </div>
-                    <div className="text-xs text-muted truncate">{file ? file.name : d.subtitle}</div>
+                    <div className="text-small text-muted truncate">{file ? file.name : d.subtitle}</div>
                   </div>
                   {file && !busy && (
                     <div className="w-7 h-7 bg-brand rounded-full flex items-center justify-center flex-shrink-0 anim-bounce-in">
@@ -107,7 +107,7 @@ export function DocumentsScreen({ docs, onChange, step, total, onBack, onNext, s
                 <button
                   onClick={() => pick(d.key)}
                   disabled={busy}
-                  className={`mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-tile text-sm font-semibold transition-all ${
+                  className={`mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-tile text-body font-bold transition-all ${
                     file ? 'bg-surface text-muted border border-line' : 'border-2 border-dashed border-line text-muted active:border-brand active:text-brand'
                   }`}
                 >
@@ -123,7 +123,7 @@ export function DocumentsScreen({ docs, onChange, step, total, onBack, onNext, s
           onChange={e => { onFile(e.target.files?.[0]); e.target.value = '' }}/>
       </div>
       <BottomBar>
-        {!requiredDone && <div className="text-center text-xs text-subtle mb-2">Upload both sides of your CNIC to continue</div>}
+        {!requiredDone && <div className="text-center text-small text-subtle mb-2">Upload both sides of your CNIC to continue</div>}
         <Button className="w-full" disabled={!requiredDone} onClick={onNext}>
           <ShieldIcon size={18}/> {inOnboarding ? 'Submit & choose skills' : 'Save documents'}
         </Button>
@@ -162,9 +162,9 @@ export function SkillSelector({ value, onChange }: { value: Skills; onChange: (s
               <span className="w-10 h-10 rounded-tile flex items-center justify-center text-xl bg-mint text-brand"><Glyph e={cat.emoji}/></span>
               <span className="flex-1 text-left">
                 <span className="block font-bold text-ink">{cat.name}</span>
-                <span className="block text-[11px] text-muted">{cat.subs.length} services</span>
+                <span className="block text-small text-muted">{cat.subs.length} services</span>
               </span>
-              {count > 0 && <span className="text-[11px] bg-brand text-white font-bold px-2 py-0.5 rounded-full">{count} selected</span>}
+              {count > 0 && <span className="text-small bg-brand text-white font-bold px-2 py-0.5 rounded-full">{count} selected</span>}
               <ChevronDown size={18} className={`text-subtle transition-transform ${isOpen ? 'rotate-180' : ''}`}/>
             </button>
             {isOpen && (
@@ -176,18 +176,18 @@ export function SkillSelector({ value, onChange }: { value: Skills; onChange: (s
                       <button onClick={() => toggleSub(sub.id)} className="w-full flex items-center gap-3 p-3 text-left">
                         <Check checked={!!sel}/>
                         <span className="flex-1 min-w-0">
-                          <span className="block text-sm font-semibold text-ink">{sub.name}</span>
-                          <span className="block text-[11px] text-muted">{sub.desc} · from {rs(sub.price)}/hr</span>
+                          <span className="block text-body font-bold text-ink">{sub.name}</span>
+                          <span className="block text-small text-muted">{sub.desc} · from {rs(sub.price)}/hr</span>
                         </span>
                       </button>
                       {sel && (
                         <div className="px-3 pb-3 anim-fade-in">
-                          <div className="text-[10px] text-subtle mb-1.5 flex items-center gap-1">
+                          <div className="text-tab text-subtle mb-1.5 flex items-center gap-1">
                             <ToolIcon size={10}/> Needs: {sub.tools.join(', ')}
                           </div>
                           <button
                             onClick={() => toggleTools(sub.id)}
-                            className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold border-2 transition-all ${
+                            className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-small font-bold border-2 transition-all ${
                               sel.tools ? 'bg-brand border-brand text-white' : 'bg-surface border-line text-muted'
                             }`}
                           >
@@ -223,11 +223,11 @@ export function SkillsScreen({ value, onChange, step, total, onBack, onNext, cta
       <AppHeader title="Your skills" subtitle="Categories & tools" onBack={onBack} step={step} total={total}/>
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <h2 className="text-xl display text-ink mb-1">What can you do?</h2>
-        <p className="text-muted text-sm mb-5">Pick the services you offer. Jobs that need tools are shown first to workers who have them.</p>
+        <p className="text-muted text-body mb-5">Pick the services you offer. Jobs that need tools are shown first to workers who have them.</p>
         <SkillSelector value={value} onChange={onChange}/>
       </div>
       <BottomBar>
-        <div className="flex items-center justify-between text-xs mb-2.5">
+        <div className="flex items-center justify-between text-small mb-2.5">
           <span className="text-muted"><b className="text-ink">{selected}</b> skills selected</span>
           <span className="text-muted"><b className="text-brand">{withTools}</b> with own tools</span>
         </div>

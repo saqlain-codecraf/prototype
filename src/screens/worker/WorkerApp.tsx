@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { FloatingNav, ToastView, useToast } from '../../components/ui'
+import { TabBar, ToastView, ToneContext, useToast } from '../../components/ui'
 import { HomeIcon, BriefcaseIcon, MessageIcon, BarChartIcon, UserIcon } from '../../components/Icons'
 import { ChatScreen, ConversationList, useConversations } from '../../components/Chat'
 import { OtpScreen, SignupScreen, type Profile } from '../auth/Auth'
@@ -222,7 +222,7 @@ export default function WorkerApp({ mode, profile: account, onSignOut, onCancel,
   // --- Onboarding ----------------------------------------------------------------------
   if (stage !== 'app') {
     return (
-      <div className="relative flex flex-col h-full">
+      <ToneContext.Provider value="worker"><div className="relative flex flex-col h-full">
         {stage === 'signup' && <SignupScreen role="worker" step={1} total={4} initial={profile.email ? profile : undefined} onBack={onCancel} onNext={(p, pw) => { setProfile(p); setPassword(pw); setStage('otp') }}/>}
         {stage === 'otp' && <OtpScreen phone={profile.phone} step={2} total={4} onBack={() => setStage('signup')} onVerify={() => setStage('documents')}/>}
         {stage === 'documents' && <DocumentsScreen docs={docs} onChange={setDocs} step={3} total={4} onBack={() => setStage('otp')} onNext={() => setStage('skills')}/>}
@@ -231,7 +231,7 @@ export default function WorkerApp({ mode, profile: account, onSignOut, onCancel,
             onNext={() => { onRegistered(profile, password); setVerification('pending'); setStage('app'); show({ emoji: '👋', title: `Welcome, ${profile.name.split(' ')[0]}!`, desc: 'Go online to start receiving jobs' }) }}/>
         )}
         <ToastView toast={toast} onClose={hide}/>
-      </div>
+      </div></ToneContext.Provider>
     )
   }
 
@@ -319,16 +319,15 @@ export default function WorkerApp({ mode, profile: account, onSignOut, onCancel,
   const showAlert = alert && online && (!top || (top.name !== 'complete' && !(top.name === 'job' && top.id === alert.id)))
 
   return (
-    <div className="relative flex flex-col h-full">
+    <ToneContext.Provider value="worker"><div className="relative flex flex-col h-full">
       <div className="flex-1 overflow-hidden">{content}</div>
       {!top && (
-        <FloatingNav
+        <TabBar
           active={tab}
           onSelect={id => (id === 'jobs' ? goJobs(jobsTab) : goTab(id as WorkerTab))}
           items={[
             { id: 'home', label: 'Home', Icon: HomeIcon },
             { id: 'jobs', label: 'Jobs', Icon: BriefcaseIcon, badge: active.length },
-            { id: 'messages', label: 'Messages', Icon: MessageIcon, badge: chat.unreadTotal },
             { id: 'earnings', label: 'Earnings', Icon: BarChartIcon },
             { id: 'profile', label: 'Profile', Icon: UserIcon },
           ]}
@@ -344,6 +343,6 @@ export default function WorkerApp({ mode, profile: account, onSignOut, onCancel,
         />
       )}
       <ToastView toast={toast} onClose={hide}/>
-    </div>
+    </div></ToneContext.Provider>
   )
 }

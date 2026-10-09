@@ -19,25 +19,25 @@ export function HirerAssignedScreen({ hj, onTrack, onMessage }: { hj: HirerJob; 
           <div className="absolute inset-0 bg-brand rounded-full flex items-center justify-center text-5xl anim-bounce-in"><Glyph e="🤝"/></div>
         </div>
         <h2 className="text-2xl display text-ink mb-1">Worker assigned!</h2>
-        <p className="text-muted text-sm mb-6">{w.name} has been notified and will start heading to you.</p>
+        <p className="text-muted text-body mb-6">{w.name} has been notified and will start heading to you.</p>
         <div className="w-full bg-canvas rounded-card p-4 text-left">
           <div className="flex items-center gap-3">
             <Avatar name={w.name} size={52}/>
             <div className="flex-1">
               <div className="display text-ink">{w.name}</div>
-              <div className="flex items-center gap-1.5"><Rating value={w.rating}/><span className="text-xs text-subtle">· {w.jobs} jobs</span></div>
+              <div className="flex items-center gap-1.5"><Rating value={w.rating}/><span className="text-small text-subtle">· {w.jobs} jobs</span></div>
             </div>
             <a href="tel:+923001234567" aria-label="Call" className="w-10 h-10 bg-surface rounded-tile flex items-center justify-center"><PhoneIcon size={16} className="text-label"/></a>
           </div>
           <div className="grid grid-cols-3 gap-2 mt-4 text-center">
             {[{ l: 'Date', v: hj.job.dateLabel }, { l: 'Time', v: hj.job.time }, { l: 'Est. total', v: rs(hj.total ?? 0) }].map(x => (
               <div key={x.l} className="bg-surface rounded-tile p-2.5">
-                <div className="font-bold text-ink text-sm">{x.v}</div>
-                <div className="text-[10px] text-subtle">{x.l}</div>
+                <div className="font-bold text-ink text-body">{x.v}</div>
+                <div className="text-tab text-subtle">{x.l}</div>
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between mt-3 px-1 text-xs">
+          <div className="flex items-center justify-between mt-3 px-1 text-small">
             <span className="text-muted">Payment</span>
             <span className="font-bold text-ink">{methodOf(hj.paymentMethod).icon} {methodOf(hj.paymentMethod).label}</span>
           </div>
@@ -90,7 +90,7 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
           <ChevronLeft size={18} className="text-label"/>
         </button>
         {eta > 0 && (
-          <div className="absolute top-10 right-4 bg-ink text-white rounded-full px-3 py-2 shadow-md text-xs font-bold">ETA {eta} min</div>
+          <div className="absolute top-10 right-4 bg-ink text-white rounded-full px-3 py-2 shadow-md text-small font-bold">ETA {eta} min</div>
         )}
       </MapView>
 
@@ -100,7 +100,7 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
               <div className="display text-lg text-ink">{headline}</div>
-              <div className="text-xs text-muted truncate"><Glyph e={jobEmoji(job)}/> {jobTitle(job)} · {job.dateLabel}, {job.time}</div>
+              <div className="text-small text-muted truncate"><Glyph e={jobEmoji(job)}/> {jobTitle(job)} · {job.dateLabel}, {job.time}</div>
             </div>
             <Badge label={WORK_STEPS[idx].short} color={status === 'done' ? 'amber' : 'green'} dot/>
           </div>
@@ -111,7 +111,7 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${i < idx ? 'bg-brand border-brand' : i === idx ? 'bg-surface border-brand' : 'bg-surface border-line'}`}>
                     {i < idx ? <CheckIcon size={11} className="text-white"/> : i === idx ? <span className="w-2 h-2 bg-brand rounded-full animate-pulse"/> : null}
                   </div>
-                  <span className={`text-[9px] font-bold mt-1 ${i <= idx ? 'text-brand' : 'text-subtle'}`}>{s.short}</span>
+                  <span className={`text-tab font-bold mt-1 ${i <= idx ? 'text-brand' : 'text-subtle'}`}>{s.short}</span>
                 </div>
                 {i < 4 && <div className={`flex-1 h-0.5 mb-4 mx-1 transition-all ${i < idx ? 'bg-brand' : 'bg-divider'}`}/>}
               </div>
@@ -126,7 +126,7 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-bold text-ink">{w.name}</div>
-            <div className="flex items-center gap-1.5"><Rating value={w.rating}/><span className="text-xs text-subtle">· {w.jobs} jobs · {w.hasTools ? 'Own tools' : 'No tools'}</span></div>
+            <div className="flex items-center gap-1.5"><Rating value={w.rating}/><span className="text-small text-subtle">· {w.jobs} jobs · {w.hasTools ? 'Own tools' : 'No tools'}</span></div>
           </div>
           <a href="tel:+923001234567" aria-label="Call" className="w-11 h-11 bg-divider rounded-tile flex items-center justify-center"><PhoneIcon size={17} className="text-label"/></a>
           <button onClick={onMessage} aria-label="Message" className="w-11 h-11 bg-brand rounded-tile flex items-center justify-center"><MessageIcon size={17} className="text-white"/></button>
@@ -136,10 +136,10 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
           <Label>Job details</Label>
           <div className="flex items-start gap-2 mb-2">
             <MapPinIcon size={15} className="text-brand mt-0.5"/>
-            <div><div className="text-sm font-semibold text-ink">{job.address}</div><div className="text-xs text-muted">{job.area}</div></div>
+            <div><div className="text-body font-bold text-ink">{job.address}</div><div className="text-small text-muted">{job.area}</div></div>
           </div>
           {job.lines.map(l => <Row key={l.subId} label={findSub(l.subId)?.sub.name ?? ''} value={`${l.hours}h`}/>)}
-          <p className="text-sm text-muted mt-2">{job.description}</p>
+          <p className="text-body text-muted mt-2">{job.description}</p>
           {job.photos.length > 0 && <div className="flex gap-2 mt-3">{job.photos.map((p, i) => <PhotoThumb key={i} src={p} size={52}/>)}</div>}
         </div>
 
@@ -149,8 +149,8 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
           <Row label="Method" value={`${methodOf(hj.paymentMethod).icon} ${methodOf(hj.paymentMethod).label}`}/>
           <Row label="Estimated total" value={rs(hj.total ?? 0)} strong/>
           <div className="grid grid-cols-2 gap-2 mt-4">
-            <button onClick={() => setReport(true)} className="py-3 text-sm font-bold text-muted bg-divider rounded-tile">Report issue</button>
-            <button onClick={() => setConfirmCancel(true)} disabled={idx >= 3} className="py-3 text-sm font-bold text-danger bg-danger-tint rounded-tile disabled:opacity-40">Cancel job</button>
+            <button onClick={() => setReport(true)} className="py-3 text-body font-bold text-muted bg-divider rounded-tile">Report issue</button>
+            <button onClick={() => setConfirmCancel(true)} disabled={idx >= 3} className="py-3 text-body font-bold text-danger bg-danger-tint rounded-tile disabled:opacity-40">Cancel job</button>
           </div>
         </div>
       </div>
@@ -168,7 +168,7 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
         <div className="space-y-2">
           {['Worker is late', 'Worker asked for more money', 'Quality of work', 'Safety concern', 'Something else'].map(r => (
             <button key={r} onClick={() => { setReport(false); onReport(r) }} className="w-full flex items-center gap-3 p-4 rounded-card border-2 border-divider text-left active:border-brand">
-              <AlertCircle size={18} className="text-subtle"/><span className="text-sm font-semibold text-ink">{r}</span>
+              <AlertCircle size={18} className="text-subtle"/><span className="text-body font-bold text-ink">{r}</span>
             </button>
           ))}
         </div>
@@ -202,7 +202,7 @@ export function HirerCompletionScreen({ hj, onBack, onDone, onReport }: {
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
           <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center text-5xl mb-5 anim-bounce-in"><Glyph e="⭐"/></div>
           <h2 className="text-2xl display text-ink mb-1">Thanks for your review!</h2>
-          <p className="text-muted text-sm">Your feedback helps {w.name.split(' ')[0]} and the DoAura community.</p>
+          <p className="text-muted text-body">Your feedback helps {w.name.split(' ')[0]} and the Doaura community.</p>
         </div>
         <div className="px-5 pb-8"><Button className="w-full" onClick={() => onDone(rating)}>Back to home</Button></div>
       </div>
@@ -218,15 +218,15 @@ export function HirerCompletionScreen({ hj, onBack, onDone, onReport }: {
             <div className="bg-mint rounded-card p-5 text-center mb-5 text-brand">
               <div className="text-3xl mb-1"><Glyph e="✅"/></div>
               <div className="display text-brand">{w.name} marked the job as done</div>
-              <div className="text-xs text-brand mt-0.5">Please check the work before confirming</div>
+              <div className="text-small text-brand mt-0.5">Please check the work before confirming</div>
             </div>
             <Label>Completed tasks</Label>
             <div className="space-y-1.5 mb-5">
               {job.lines.map(l => (
                 <div key={l.subId} className="flex items-center gap-2.5 bg-canvas rounded-tile px-3 py-2.5">
                   <span className="w-5 h-5 bg-brand rounded-full flex items-center justify-center"><CheckIcon size={11} className="text-white"/></span>
-                  <span className="flex-1 text-sm font-semibold text-ink">{findSub(l.subId)?.sub.name}</span>
-                  <span className="text-xs text-muted">{l.hours}h</span>
+                  <span className="flex-1 text-body font-bold text-ink">{findSub(l.subId)?.sub.name}</span>
+                  <span className="text-small text-muted">{l.hours}h</span>
                 </div>
               ))}
             </div>
@@ -237,38 +237,38 @@ export function HirerCompletionScreen({ hj, onBack, onDone, onReport }: {
             {method.id === 'cash' ? (
               <button onClick={() => setPaid(p => !p)} className={`mt-5 w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${paid ? 'border-brand bg-mint' : 'border-line'}`}>
                 <Check checked={paid}/>
-                <div><div className="font-bold text-sm text-ink">I paid {rs(total)} in cash</div><div className="text-xs text-muted">{w.name.split(' ')[0]} will confirm receipt</div></div>
+                <div><div className="font-bold text-body text-ink">I paid {rs(total)} in cash</div><div className="text-small text-muted">{w.name.split(' ')[0]} will confirm receipt</div></div>
               </button>
             ) : paid ? (
               <div className="mt-5 p-4 rounded-card bg-mint flex items-center gap-3 anim-fade-in text-brand">
                 <span className="w-8 h-8 bg-brand rounded-full flex items-center justify-center anim-bounce-in"><CheckIcon size={16} className="text-white"/></span>
-                <div><div className="font-bold text-sm text-brand">Paid {rs(total)} via {method.label}</div><div className="text-xs text-muted">Receipt sent to your email</div></div>
+                <div><div className="font-bold text-body text-brand">Paid {rs(total)} via {method.label}</div><div className="text-small text-muted">Receipt sent to your email</div></div>
               </div>
             ) : (
               <Button variant="dark" className="w-full mt-5" loading={paying} onClick={() => { setPaying(true); setTimeout(() => { setPaying(false); setPaid(true) }, 1500) }}>
                 <Glyph e={method.icon}/> Pay {rs(total)} with {method.label}
               </Button>
             )}
-            <button onClick={onReport} className="w-full mt-4 text-sm font-bold text-muted">Something wrong? Report an issue</button>
+            <button onClick={onReport} className="w-full mt-4 text-body font-bold text-muted">Something wrong? Report an issue</button>
           </div>
         )}
         {step === 2 && (
           <div className="anim-fade-in text-center">
             <Avatar name={w.name} size={76}/>
             <div className="display text-ink text-lg mt-3">How did {w.name.split(' ')[0]} do?</div>
-            <div className="text-sm text-muted mb-5">{jobTitle(job)}</div>
+            <div className="text-body text-muted mb-5">{jobTitle(job)}</div>
             <StarInput value={rating} onChange={setRating}/>
             <div className="flex flex-wrap gap-2 justify-center mt-4">
               {TAGS.map(t => {
                 const on = tags.includes(t)
                 return (
                   <button key={t} onClick={() => setTags(on ? tags.filter(x => x !== t) : [...tags, t])}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${on ? 'bg-brand border-brand text-white' : 'border-line text-muted'}`}>{t}</button>
+                    className={`px-3 py-1.5 rounded-full text-small font-bold border transition-all ${on ? 'bg-brand border-brand text-white' : 'border-line text-muted'}`}>{t}</button>
                 )
               })}
             </div>
             <textarea rows={3} placeholder={`Write a review for ${w.name.split(' ')[0]} (optional)`}
-              className="w-full mt-5 px-4 py-3 bg-canvas border border-line rounded-tile text-sm outline-none focus:border-brand resize-none"/>
+              className="w-full mt-5 px-4 py-3 bg-canvas border border-line rounded-tile text-body outline-none focus:border-brand resize-none"/>
           </div>
         )}
       </div>

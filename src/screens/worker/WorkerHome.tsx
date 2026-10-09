@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, CountdownBar, StatusBar, Toggle } from '../../components/ui'
+import { Avatar, Badge, Button, CountdownBar, IconTile, StatusBar, Toggle } from '../../components/ui'
 import { BellIcon, BriefcaseIcon, BarChartIcon, MessageIcon, UserIcon, MapPinIcon, ClockIcon, ToolIcon, Glyph } from '../../components/Icons'
 import { rs } from '../../data/catalog'
 import { jobHours, jobTitle, jobEmoji, priceLine, type Job } from '../../data/jobs'
@@ -35,60 +35,62 @@ export function WorkerHome({ name, online, onToggleOnline, verification, today, 
   return (
     <div className="flex flex-col h-full bg-canvas">
       {/* Header */}
-      <div className={`flex-shrink-0 transition-colors duration-500 ${online ? 'bg-brand' : 'bg-ink'}`}>
+      <div className="flex-shrink-0 bg-ink">
         <StatusBar light/>
-        <div className="px-5 pb-5 pt-1">
+        <div className="px-screen pb-5 pt-1">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <div className="text-[13px] font-medium text-white/60">{greeting()}</div>
-              <div className="text-xl display text-white">{name.split(' ')[0]}</div>
+            <div className="min-w-0">
+              <div className="text-ui font-medium text-white/70">{greeting()}</div>
+              <h1 className="display text-title text-white truncate">{name.split(' ')[0]}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => onTab('messages')} aria-label="Messages" className="relative w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
-                <BellIcon size={18} className="text-white"/>
-                {unread > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-danger text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-brand">{unread}</span>}
+              <button onClick={() => onTab('messages')} aria-label="Messages" className="relative size-touch rounded-full bg-white/15 flex items-center justify-center">
+                <BellIcon size={22} className="text-white"/>
+                {unread > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-accent text-ink text-tab font-bold rounded-full flex items-center justify-center">{unread}</span>}
               </button>
-              <button onClick={() => onTab('profile')} aria-label="Profile"><Avatar name={name} size={40} ring/></button>
+              <button onClick={() => onTab('profile')} aria-label="Profile" className="size-touch flex items-center justify-center"><Avatar name={name} size={44} ring/></button>
             </div>
           </div>
 
           {/* Online toggle */}
-          <div className="flex items-center gap-4 p-4 rounded-card bg-white/10 backdrop-blur">
-            <div className="relative w-11 h-11 flex-shrink-0">
-              {online && <span className="radar-ring" style={{ borderColor: '#fff' }}/>}
-              <div className={`absolute inset-0 rounded-full flex items-center justify-center text-xl ${online ? 'bg-surface' : 'bg-white/15'}`}><span className={`block w-3.5 h-3.5 rounded-full ring-4 ${online ? 'bg-success ring-success/25' : 'bg-subtle ring-white/20'}`}/></div>
+          <div className={`flex items-center gap-4 p-4 rounded-card border transition-colors duration-300 ${online ? 'bg-white/10 border-success/60' : 'bg-white/5 border-white/15'}`}>
+            <div className="relative size-11 flex-shrink-0">
+              {online && <span className="radar-ring" style={{ borderColor: 'var(--color-success)' }}/>}
+              <div className={`absolute inset-0 rounded-full flex items-center justify-center ${online ? 'bg-success/20' : 'bg-white/10'}`}>
+                <span className={`block w-3.5 h-3.5 rounded-full ${online ? 'bg-success' : 'bg-white/40'}`}/>
+              </div>
             </div>
-            <div className="flex-1">
-              <div className="display text-white">{online ? "You're online" : "You're offline"}</div>
-              <div className="text-xs text-white/70">{online ? 'Looking for jobs near you…' : "You won't receive job requests"}</div>
+            <div className="flex-1 min-w-0">
+              <div className="display text-[20px] text-white">{online ? "You're online" : "You're offline"}</div>
+              <div className="text-small text-white/70">{online ? 'Looking for jobs near you…' : "You won't receive job requests"}</div>
             </div>
             <Toggle on={online} onChange={onToggleOnline} size="lg"/>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 py-4">
+      <div className="flex-1 overflow-y-auto px-screen py-5">
         {verification === 'pending' && (
-          <button onClick={onDocuments} className="w-full flex items-center gap-3 p-3 mb-4 bg-warn border border-accent rounded-card text-left">
-            <span className="w-8 h-8 border-[3px] border-accent border-t-transparent rounded-full animate-spin flex-shrink-0"/>
+          <button onClick={onDocuments} className="w-full flex items-center gap-3 p-4 mb-4 bg-warn rounded-card text-left">
+            <span className="w-8 h-8 border-[3px] border-warn-ink/40 border-t-warn-ink rounded-full animate-spin flex-shrink-0"/>
             <div className="flex-1">
-              <div className="text-sm font-bold text-warn-ink">Verifying your documents</div>
-              <div className="text-xs text-warn-ink">You can browse jobs now. Bidding unlocks once verified.</div>
+              <div className="text-body font-bold text-warn-ink">Verifying your documents</div>
+              <div className="text-small text-warn-ink">You can browse jobs now. Bidding unlocks once verified.</div>
             </div>
           </button>
         )}
 
         {/* Earnings */}
         <button onClick={() => onTab('earnings')} className="w-full flex gap-3 mb-4 text-left">
-          <div className="flex-1 bg-surface rounded-card p-4 border border-divider">
-            <div className="text-[11px] font-bold text-subtle">Today</div>
-            <div className="text-xl display text-ink mt-0.5">{rs(today)}</div>
-            <div className="text-xs text-brand font-semibold mt-0.5">{todayJobs} job{todayJobs === 1 ? '' : 's'} completed</div>
+          <div className="flex-1 bg-surface rounded-card p-4 border border-line">
+            <div className="text-ui font-bold text-label">Today</div>
+            <div className="display text-[26px] text-ink mt-1">{rs(today)}</div>
+            <div className="text-small text-brand font-bold mt-1">{todayJobs} job{todayJobs === 1 ? '' : 's'} completed</div>
           </div>
-          <div className="flex-1 bg-surface rounded-card p-4 border border-divider">
-            <div className="text-[11px] font-bold text-subtle">This week</div>
-            <div className="text-xl display text-ink mt-0.5">{rs(week)}</div>
-            <div className="text-xs text-subtle font-semibold mt-0.5">View earnings →</div>
+          <div className="flex-1 bg-surface rounded-card p-4 border border-line">
+            <div className="text-ui font-bold text-label">This week</div>
+            <div className="display text-[26px] text-ink mt-1">{rs(week)}</div>
+            <div className="text-small text-brand font-bold mt-1">View earnings</div>
           </div>
         </button>
 
@@ -100,10 +102,10 @@ export function WorkerHome({ name, online, onToggleOnline, verification, today, 
             { l: 'Messages', Icon: MessageIcon, n: unread, go: () => onTab('messages') },
             { l: 'Profile', Icon: UserIcon, n: 0, go: () => onTab('profile') },
           ].map(({ l, Icon, n, go }) => (
-            <button key={l} onClick={go} className="relative bg-surface rounded-card py-3 flex flex-col items-center gap-1 border border-divider active:scale-95 transition-all">
-              <Icon size={20} className="text-brand"/>
-              <span className="text-[10px] font-bold text-muted">{l}</span>
-              {n > 0 && <span className="absolute top-1.5 right-2 min-w-4 h-4 px-1 bg-brand text-white text-[9px] font-bold rounded-full flex items-center justify-center">{n}</span>}
+            <button key={l} onClick={go} className="relative flex flex-col items-center gap-2 active:scale-95 transition-all">
+              <IconTile size={56}><Icon size={24}/></IconTile>
+              <span className="text-small font-bold text-label">{l}</span>
+              {n > 0 && <span className="absolute -top-1 right-1 min-w-5 h-5 px-1 bg-accent text-ink text-tab font-bold rounded-full flex items-center justify-center">{n}</span>}
             </button>
           ))}
         </div>
@@ -119,10 +121,10 @@ export function WorkerHome({ name, online, onToggleOnline, verification, today, 
           <>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="display text-ink">Jobs near you</div>
-                {pendingBids > 0 && <div className="text-[11px] text-warn-ink font-semibold">{pendingBids} bid{pendingBids > 1 ? 's' : ''} awaiting response</div>}
+                <h2 className="display text-[20px] text-ink">Jobs near you</h2>
+                {pendingBids > 0 && <div className="text-small text-warn-ink font-bold">{pendingBids} bid{pendingBids > 1 ? 's' : ''} awaiting response</div>}
               </div>
-              {feed.length > 0 && <button onClick={() => onTab('jobs')} className="text-brand text-sm font-bold">See all</button>}
+              {feed.length > 0 && <button onClick={() => onTab('jobs')} className="min-h-touch px-1 text-brand text-ui font-bold">See all</button>}
             </div>
             {sorted.length === 0 ? (
               <div className="flex flex-col items-center py-8 text-center">
@@ -130,8 +132,8 @@ export function WorkerHome({ name, online, onToggleOnline, verification, today, 
                   <span className="radar-ring"/><span className="radar-ring" style={{ animationDelay: '1.2s' }}/>
                   <div className="absolute inset-4 bg-brand rounded-full flex items-center justify-center"><MapPinIcon size={20} className="text-white"/></div>
                 </div>
-                <div className="font-bold text-ink">Searching nearby…</div>
-                <div className="text-sm text-subtle max-w-[240px]">We'll alert you the moment a job matching your skills is posted.</div>
+                <div className="display text-[20px] text-ink">Searching nearby…</div>
+                <div className="text-body text-muted max-w-[260px] mt-1">We'll alert you the moment a job matching your skills is posted.</div>
               </div>
             ) : (
               <div className="space-y-3">
@@ -140,14 +142,14 @@ export function WorkerHome({ name, online, onToggleOnline, verification, today, 
             )}
           </>
         ) : (
-          <div className="bg-surface rounded-sheet p-6 text-center border border-divider">
-            <div className="text-4xl mb-2"><Glyph e="😴"/></div>
-            <div className="display text-ink">You're offline</div>
-            <div className="text-sm text-muted mb-4">Go online to receive new job requests and start earning.</div>
+          <div className="bg-surface rounded-card p-6 text-center border border-line">
+            <IconTile size={64} className="mx-auto mb-3"><Glyph e="😴" size={30}/></IconTile>
+            <div className="display text-heading text-ink">You're offline</div>
+            <div className="text-body text-muted mt-1 mb-5">Go online to receive new job requests and start earning.</div>
             <Button className="w-full" onClick={() => onToggleOnline(true)}>Go online</Button>
             {active.length === 0 && (
-              <button onClick={() => onTab('earnings')} className="mt-3 text-sm font-semibold text-muted flex items-center justify-center gap-1 w-full">
-                <BarChartIcon size={14}/> See your earnings
+              <button onClick={() => onTab('earnings')} className="mt-2 min-h-touch text-ui font-bold text-brand flex items-center justify-center gap-1.5 w-full">
+                <BarChartIcon size={18}/> See your earnings
               </button>
             )}
           </div>
@@ -171,44 +173,44 @@ export function NewJobAlert({ job, onView, onAccept, onDismiss, canBid }: {
   return (
     <div className="absolute inset-0 z-40 flex items-end">
       <div className="absolute inset-0 bg-ink/50 anim-fade-in" onClick={onDismiss}/>
-      <div className="relative w-full bg-surface rounded-t-3xl p-5 pb-7 anim-slide-up-sheet">
+      <div className="relative w-full bg-surface rounded-t-sheet p-5 pb-7 anim-slide-up-sheet">
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-9 h-9 bg-brand rounded-full flex items-center justify-center anim-wiggle"><BellIcon size={18} className="text-white"/></span>
+          <span className="size-11 bg-accent rounded-full flex items-center justify-center anim-wiggle"><BellIcon size={22} className="text-ink"/></span>
           <div className="flex-1">
-            <div className="text-[11px] display text-brand ">NEW JOB NEAR YOU</div>
-            <div className="text-[11px] text-subtle">Respond quickly — others can see it too</div>
+            <div className="display text-[20px] text-ink">New job near you</div>
+            <div className="text-small text-muted">Respond quickly — others can see it too</div>
           </div>
           {job.urgent && <Badge label="Urgent" color="red"/>}
         </div>
         <CountdownBar key={job.id} seconds={20} onEnd={onDismiss}/>
 
         <div className="flex items-center gap-3 mt-4">
-          <span className="w-14 h-14 bg-mint rounded-card flex items-center justify-center text-3xl text-brand"><Glyph e={jobEmoji(job)}/></span>
+          <IconTile size={56}><Glyph e={jobEmoji(job)} size={28}/></IconTile>
           <div className="flex-1 min-w-0">
-            <div className="display text-lg text-ink truncate">{jobTitle(job)}</div>
-            <div className="text-xs text-muted">{job.area} · {job.hirer.name}</div>
+            <div className="display text-heading text-ink truncate">{jobTitle(job)}</div>
+            <div className="text-small text-muted">{job.area} · {job.hirer.name}</div>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-2 mt-4">
           {[
-            { i: <MapPinIcon size={14}/>, v: `${job.distanceKm} km` },
-            { i: <ClockIcon size={14}/>, v: `${jobHours(job)} hrs` },
-            { i: <ToolIcon size={14}/>, v: job.toolsRequired ? 'Tools ✓' : 'No tools' },
-            { i: <span className="text-xs"><Glyph e="📅"/></span>, v: job.dateLabel },
+            { i: <MapPinIcon size={18}/>, v: `${job.distanceKm} km` },
+            { i: <ClockIcon size={18}/>, v: `${jobHours(job)} hrs` },
+            { i: <ToolIcon size={18}/>, v: job.toolsRequired ? 'Own tools' : 'No tools' },
+            { i: <Glyph e="📅" size={18}/>, v: job.dateLabel },
           ].map((x, k) => (
-            <div key={k} className="bg-canvas rounded-tile py-2 flex flex-col items-center gap-0.5 text-muted">
-              {x.i}<span className="text-[11px] font-bold text-ink">{x.v}</span>
+            <div key={k} className="bg-canvas border border-divider rounded-tile py-2.5 flex flex-col items-center gap-1 text-brand">
+              {x.i}<span className="text-small font-bold text-ink">{x.v}</span>
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-between mt-4 p-3 bg-mint rounded-tile text-brand">
-          <span className="text-sm font-semibold text-brand">Hirer offers</span>
-          <span className="display text-brand text-lg">{priceLine(job)}</span>
+        <div className="flex items-center justify-between mt-4 p-4 bg-mint rounded-card">
+          <span className="text-ui font-bold text-brand">Hirer offers</span>
+          <span className="display text-[26px] text-ink">{priceLine(job)}</span>
         </div>
         <div className="flex gap-2 mt-4">
-          <Button variant="secondary" className="flex-1" size="md" onClick={onDismiss}>Skip</Button>
-          <Button variant="dark" className="flex-1" size="md" onClick={onView}>View & bid</Button>
-          {canBid && <Button className="flex-1" size="md" onClick={onAccept}>Accept</Button>}
+          <Button variant="ghost" className="flex-1" onClick={onDismiss}>Skip</Button>
+          <Button variant="secondary" className="flex-1" onClick={onView}>View & bid</Button>
+          {canBid && <Button className="flex-1" onClick={onAccept}>Accept</Button>}
         </div>
       </div>
     </div>

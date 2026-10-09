@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { FloatingNav, ToastView, useToast } from '../../components/ui'
+import { TabBar, ToastView, ToneContext, useToast } from '../../components/ui'
 import { HomeIcon, BriefcaseIcon, MessageIcon, UserIcon, PlusIcon } from '../../components/Icons'
 import { ChatScreen, ConversationList, useConversations } from '../../components/Chat'
 import { OtpScreen, SignupScreen, type Profile } from '../auth/Auth'
@@ -156,7 +156,7 @@ export default function HirerApp({ mode, profile: account, onSignOut, onCancel, 
 
   const report = (reason: string) => {
     log('🛟', 'Issue reported', reason)
-    show({ emoji: '🛟', title: 'Report sent', desc: 'DoAura support will contact you shortly' })
+    show({ emoji: '🛟', title: 'Report sent', desc: 'Doaura support will contact you shortly' })
   }
 
   const openJob = (hj: HirerJob) => {
@@ -168,11 +168,11 @@ export default function HirerApp({ mode, profile: account, onSignOut, onCancel, 
   // --- Auth ---------------------------------------------------------------------------
   if (stage !== 'app') {
     return (
-      <div className="relative flex flex-col h-full">
+      <ToneContext.Provider value="hirer"><div className="relative flex flex-col h-full">
         {stage === 'signup' && <SignupScreen role="hirer" step={1} total={2} initial={profile.email ? profile : undefined} onBack={onCancel} onNext={(p, pw) => { setProfile(p); setPassword(pw); setStage('otp') }}/>}
         {stage === 'otp' && <OtpScreen phone={profile.phone} step={2} total={2} onBack={() => setStage('signup')} onVerify={() => { onRegistered(profile, password); setStage('app') }}/>}
         <ToastView toast={toast} onClose={hide}/>
-      </div>
+      </div></ToneContext.Provider>
     )
   }
 
@@ -239,16 +239,15 @@ export default function HirerApp({ mode, profile: account, onSignOut, onCancel, 
   }
 
   return (
-    <div className="relative flex flex-col h-full">
+    <ToneContext.Provider value="hirer"><div className="relative flex flex-col h-full">
       <div className="flex-1 overflow-hidden relative">{content}</div>
       {!routed && (
-        <FloatingNav
+        <TabBar
           active={tab}
           onSelect={id => (id === 'create' ? push({ name: 'create', preset: {} }) : goTab(id as HirerTab))}
           items={[
             { id: 'home', label: 'Home', Icon: HomeIcon },
             { id: 'jobs', label: 'My jobs', Icon: BriefcaseIcon, badge: active.length },
-            { id: 'create', label: 'Post a job', Icon: PlusIcon },
             { id: 'messages', label: 'Messages', Icon: MessageIcon, badge: chat.unreadTotal },
             { id: 'profile', label: 'Profile', Icon: UserIcon },
           ]}
@@ -266,6 +265,6 @@ export default function HirerApp({ mode, profile: account, onSignOut, onCancel, 
           onConfirm={p => { setPlace(p); setFirstPicker(false); show({ emoji: '👋', title: `Welcome, ${profile.name.split(' ')[0]}!`, desc: `Showing pros near ${p.area.split(',')[0]}` }) }}/>
       )}
       <ToastView toast={toast} onClose={hide}/>
-    </div>
+    </div></ToneContext.Provider>
   )
 }

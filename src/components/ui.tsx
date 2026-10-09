@@ -96,6 +96,29 @@ export function ScreenHeader({ title, subtitle, right, children }: { title: stri
   )
 }
 
+/** Segmented tabs that sit inside a coloured header (or on canvas when tone is neutral). */
+export function SegmentTabs<T extends string>({ tabs, value, onChange }: { tabs: { id: T; label: string; count?: number }[]; value: T; onChange: (t: T) => void }) {
+  const dark = headerSurface(useTone()).dark
+  return (
+    <div className={`flex gap-1 p-1 rounded-full ${dark ? 'bg-white/10' : 'bg-divider'}`} role="tablist">
+      {tabs.map(t => {
+        const on = t.id === value
+        return (
+          <button key={t.id} role="tab" aria-selected={on} onClick={() => onChange(t.id)}
+            className={`flex-1 min-h-[40px] rounded-full text-ui font-bold flex items-center justify-center gap-1.5 transition-all ${
+              on ? 'bg-surface text-brand' : dark ? 'text-white/80' : 'text-muted'
+            }`}>
+            {t.label}
+            {t.count !== undefined && (
+              <span className={`min-w-5 h-5 px-1.5 rounded-full text-tab flex items-center justify-center ${on ? 'bg-mint text-brand' : dark ? 'bg-white/15 text-white' : 'bg-surface text-muted'}`}>{t.count}</span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 /** Thin segmented progress: brand = done, line = pending. */
 export function StepProgress({ step, total }: { step: number; total: number }) {
   return (
@@ -492,7 +515,7 @@ let warnedNoKey = false
 function warnNoKey() {
   if (warnedNoKey) return
   warnedNoKey = true
-  console.warn('[DoAura] VITE_GOOGLE_MAPS_API_KEY is not set in this build — using OpenStreetMap. Restart the dev server after editing .env.')
+  console.warn('[Doaura] VITE_GOOGLE_MAPS_API_KEY is not set in this build — using OpenStreetMap. Restart the dev server after editing .env.')
 }
 // Google reports an invalid/restricted key via window.gm_authFailure, not a script error.
 let googleAuthFailed = false
@@ -503,7 +526,7 @@ export function loadGoogleMaps(): Promise<GoogleNS> {
   if (googleAuthFailed) return Promise.reject(new Error('Google Maps key rejected'))
   w.gm_authFailure = () => {
     googleAuthFailed = true
-    console.warn('[DoAura] Google Maps rejected the API key — falling back to OpenStreetMap.')
+    console.warn('[Doaura] Google Maps rejected the API key — falling back to OpenStreetMap.')
     authFailListeners.forEach(f => f())
   }
   if (w.google?.maps?.Map) return Promise.resolve(w.google)
@@ -717,12 +740,12 @@ function Pin({ pin }: { pin: MapPin }) {
     >
       <div className="flex flex-col items-center">
         <div className={`rounded-full border-2 flex items-center justify-center shadow-md font-bold transition-all ${
-          pin.active ? 'w-11 h-11 bg-brand border-white text-white text-xs scale-110' : 'w-9 h-9 bg-surface border-brand text-brand text-[10px]'
+          pin.active ? 'w-11 h-11 bg-brand border-white text-white text-small scale-110' : 'w-9 h-9 bg-surface border-brand text-brand text-tab'
         }`}>
           {pin.label}
         </div>
         {pin.sub && (
-          <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 shadow whitespace-nowrap ${pin.active ? 'bg-ink text-white' : 'bg-brand text-white'}`}>
+          <div className={`text-tab font-bold px-1.5 py-0.5 rounded-full mt-0.5 shadow whitespace-nowrap ${pin.active ? 'bg-ink text-white' : 'bg-brand text-white'}`}>
             {pin.sub}
           </div>
         )}
