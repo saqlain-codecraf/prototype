@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Avatar, EmptyState, StatusBar } from './ui'
-import { ChevronLeft, PhoneIcon, CameraIcon, ChevronRight } from './Icons'
+import { ChevronLeft, PhoneIcon, CameraIcon, ChevronRight, Glyph } from './Icons'
 import { nowTime, uid } from '../data/jobs'
 
 export interface ChatMessage {
@@ -99,42 +99,42 @@ export function ChatScreen({ convo, typing, onBack, onSend, onRead, quickReplies
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
-      <div className="bg-white border-b border-gray-100 flex-shrink-0">
+    <div className="flex flex-col h-full bg-canvas">
+      <div className="bg-surface border-b border-divider flex-shrink-0">
         <StatusBar/>
         <div className="flex items-center gap-3 px-4 py-2.5">
-          <button onClick={onBack} aria-label="Back" className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100">
-            <ChevronLeft size={18} className="text-gray-700"/>
+          <button onClick={onBack} aria-label="Back" className="w-9 h-9 flex items-center justify-center rounded-full bg-divider">
+            <ChevronLeft size={18} className="text-label"/>
           </button>
           <Avatar name={convo.otherName} size={38}/>
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-gray-900 text-sm truncate">{convo.otherName}</div>
-            <div className="text-[11px] text-emerald-600 font-medium truncate">{typing ? 'typing…' : 'Online'}</div>
+            <div className="font-bold text-ink text-sm truncate">{convo.otherName}</div>
+            <div className="text-[11px] text-brand font-medium truncate">{typing ? 'typing…' : 'Online'}</div>
           </div>
-          <a href={`tel:${convo.otherPhone.replace(/\s/g, '')}`} aria-label="Call" className="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-50">
-            <PhoneIcon size={16} className="text-emerald-600"/>
+          <a href={`tel:${convo.otherPhone.replace(/\s/g, '')}`} aria-label="Call" className="w-9 h-9 flex items-center justify-center rounded-full bg-mint text-brand">
+            <PhoneIcon size={16} className="text-brand"/>
           </a>
         </div>
         {/* Job reference */}
-        <button onClick={onViewJob} className="mx-4 mb-3 w-[calc(100%-2rem)] px-3 py-2 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-2 text-left">
-          <span className="text-lg">{convo.emoji}</span>
+        <button onClick={onViewJob} className="mx-4 mb-3 w-[calc(100%-2rem)] px-3 py-2 bg-mint rounded-tile border border-line flex items-center gap-2 text-left text-brand">
+          <span className="text-lg"><Glyph e={convo.emoji}/></span>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-bold text-gray-900 truncate">{convo.title}</div>
-            <div className="text-[11px] text-emerald-700 truncate">{convo.status}</div>
+            <div className="text-xs font-bold text-ink truncate">{convo.title}</div>
+            <div className="text-[11px] text-brand truncate">{convo.status}</div>
           </div>
-          {onViewJob && <ChevronRight size={14} className="text-emerald-600"/>}
+          {onViewJob && <ChevronRight size={14} className="text-brand"/>}
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {convo.messages.length === 0 && (
-          <div className="text-center text-xs text-gray-400 py-6">Say hello 👋 Messages are linked to this job.</div>
+          <div className="text-center text-xs text-subtle py-6">Say hello. Messages here are linked to this job.</div>
         )}
         {convo.messages.map(m => {
           if (m.from === 'system') {
             return (
               <div key={m.id} className="flex justify-center">
-                <span className="text-[11px] bg-white border border-gray-100 text-gray-500 px-3 py-1 rounded-full">{m.text}</span>
+                <span className="text-[11px] bg-surface border border-divider text-muted px-3 py-1 rounded-full">{m.text}</span>
               </div>
             )
           }
@@ -143,11 +143,11 @@ export function ChatScreen({ convo, typing, onBack, onSend, onRead, quickReplies
             <div key={m.id} className={`flex items-end gap-2 anim-slide-up ${mine ? 'justify-end' : 'justify-start'}`}>
               {!mine && <Avatar name={convo.otherName} size={26}/>}
               <div className="max-w-[74%]">
-                <div className={`rounded-2xl text-sm overflow-hidden ${mine ? 'bg-emerald-500 text-white rounded-br-sm' : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100'}`}>
+                <div className={`rounded-card text-sm overflow-hidden ${mine ? 'bg-brand text-white rounded-br-sm' : 'bg-surface text-ink rounded-bl-sm border border-divider'}`}>
                   {m.image && <img src={m.image} alt="" className="w-48 h-36 object-cover"/>}
                   {m.text && <div className="px-4 py-2.5">{m.text}</div>}
                 </div>
-                <div className={`text-[10px] text-gray-400 mt-1 ${mine ? 'text-right' : ''}`}>{m.time}{mine && ' · Sent'}</div>
+                <div className={`text-[10px] text-subtle mt-1 ${mine ? 'text-right' : ''}`}>{m.time}{mine && ' · Sent'}</div>
               </div>
             </div>
           )
@@ -155,25 +155,25 @@ export function ChatScreen({ convo, typing, onBack, onSend, onRead, quickReplies
         {typing && (
           <div className="flex items-end gap-2">
             <Avatar name={convo.otherName} size={26}/>
-            <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex gap-1">
-              {[0, 1, 2].map(i => <span key={i} className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }}/>)}
+            <div className="bg-surface border border-divider rounded-card rounded-bl-sm px-4 py-3 flex gap-1">
+              {[0, 1, 2].map(i => <span key={i} className="w-1.5 h-1.5 bg-subtle rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }}/>)}
             </div>
           </div>
         )}
         <div ref={endRef}/>
       </div>
 
-      <div className="bg-white border-t border-gray-100 flex-shrink-0">
+      <div className="bg-surface border-t border-divider flex-shrink-0">
         <div className="flex gap-2 px-4 pt-3 overflow-x-auto">
           {quickReplies.map(q => (
-            <button key={q} onClick={() => onSend(q)} className="flex-shrink-0 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full active:bg-emerald-100">
+            <button key={q} onClick={() => onSend(q)} className="flex-shrink-0 px-3 py-1.5 bg-divider text-label text-xs font-semibold rounded-full active:bg-mint">
               {q}
             </button>
           ))}
         </div>
         <div className="flex items-center gap-2 px-4 pb-7 pt-3">
-          <button onClick={() => fileRef.current?.click()} aria-label="Attach photo" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <CameraIcon size={18} className="text-gray-500"/>
+          <button onClick={() => fileRef.current?.click()} aria-label="Attach photo" className="w-10 h-10 bg-divider rounded-full flex items-center justify-center flex-shrink-0">
+            <CameraIcon size={18} className="text-muted"/>
           </button>
           <input
             ref={fileRef} type="file" accept="image/*" className="hidden"
@@ -188,13 +188,13 @@ export function ChatScreen({ convo, typing, onBack, onSend, onRead, quickReplies
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') submit() }}
             placeholder="Type a message…"
-            className="flex-1 min-w-0 bg-gray-100 rounded-full px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-emerald-200"
+            className="flex-1 min-w-0 bg-divider rounded-full px-4 py-2.5 text-sm text-ink placeholder-subtle outline-none focus:ring-2 focus:ring-mint"
           />
           <button
             onClick={submit}
             disabled={!input.trim()}
             aria-label="Send"
-            className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center shadow-md shadow-emerald-200 flex-shrink-0 disabled:opacity-40 active:scale-95 transition-all"
+            className="w-10 h-10 bg-brand rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 active:scale-95 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="M14.5 1.5l-13 5 5 2 2 5.5 6-12.5z"/></svg>
           </button>
@@ -210,39 +210,39 @@ export function ConversationList({ convos, onOpen, emptyText }: {
   emptyText: string
 }) {
   return (
-    <div className="flex flex-col h-full bg-gray-50">
-      <div className="bg-white border-b border-gray-100 flex-shrink-0">
+    <div className="flex flex-col h-full bg-canvas">
+      <div className="bg-surface border-b border-divider flex-shrink-0">
         <StatusBar/>
         <div className="px-5 py-3">
-          <div className="font-extrabold text-gray-900 text-xl">Messages</div>
-          <div className="text-xs text-gray-400">Each chat belongs to a job</div>
+          <div className="display text-ink text-xl">Messages</div>
+          <div className="text-xs text-subtle">Each chat belongs to a job</div>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
         {convos.length === 0 ? (
-          <EmptyState emoji="💬" title="No conversations yet" desc={emptyText}/>
+          <EmptyState emoji={<Glyph e="💬"/>} title="No conversations yet" desc={emptyText}/>
         ) : (
-          <div className="bg-white">
+          <div className="bg-surface">
             {convos.map(c => {
               const last = c.messages[c.messages.length - 1]
               return (
-                <button key={c.id} onClick={() => onOpen(c.id)} className="w-full flex items-center gap-3 px-5 py-4 border-b border-gray-50 text-left active:bg-gray-50">
+                <button key={c.id} onClick={() => onOpen(c.id)} className="w-full flex items-center gap-3 px-5 py-4 border-b border-divider text-left active:bg-canvas">
                   <div className="relative">
                     <Avatar name={c.otherName} size={48}/>
-                    <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center text-sm shadow">{c.emoji}</span>
+                    <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-surface rounded-full flex items-center justify-center text-sm shadow"><Glyph e={c.emoji}/></span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-sm text-gray-900 truncate">{c.otherName}</span>
-                      <span className="text-[10px] text-gray-400 flex-shrink-0">{last?.time}</span>
+                      <span className="font-bold text-sm text-ink truncate">{c.otherName}</span>
+                      <span className="text-[10px] text-subtle flex-shrink-0">{last?.time}</span>
                     </div>
-                    <div className="text-[11px] text-emerald-600 font-semibold truncate">{c.title} · {c.status}</div>
-                    <div className={`text-xs truncate mt-0.5 ${c.unread ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
-                      {last ? (last.from === 'me' ? 'You: ' : '') + (last.text || '📷 Photo') : 'Start the conversation'}
+                    <div className="text-[11px] text-brand font-semibold truncate">{c.title} · {c.status}</div>
+                    <div className={`text-xs truncate mt-0.5 ${c.unread ? 'text-ink font-semibold' : 'text-muted'}`}>
+                      {last ? (last.from === 'me' ? 'You: ' : '') + (last.text || 'Photo') : 'Start the conversation'}
                     </div>
                   </div>
                   {c.unread > 0 && (
-                    <span className="min-w-5 h-5 px-1.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{c.unread}</span>
+                    <span className="min-w-5 h-5 px-1.5 bg-brand text-white text-[10px] font-bold rounded-full flex items-center justify-center">{c.unread}</span>
                   )}
                 </button>
               )

@@ -40,7 +40,7 @@ export default function App() {
 
   return (
     <div className="flex items-center justify-center min-h-dvh" style={{ background: '#0f172a' }}>
-      <div className="phone-frame relative bg-white overflow-hidden flex flex-col">
+      <div className="phone-frame relative bg-surface overflow-hidden flex flex-col">
         {screen}
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AppHeader, Avatar, Badge, BottomBar, Button, Check, Confirm, Label, MapView, NumberStepper, PhotoPicker, PhotoThumb, Rating, Row, StarInput, StatusBar } from '../../components/ui'
-import { ChevronLeft, MapPinIcon, MessageIcon, NavigateIcon, PhoneIcon, CheckIcon, ToolIcon } from '../../components/Icons'
+import { ChevronLeft, MapPinIcon, MessageIcon, NavigateIcon, PhoneIcon, CheckIcon, ToolIcon, Glyph } from '../../components/Icons'
 import { findSub, rs } from '../../data/catalog'
 import { PAYMENT_METHODS } from '../../data/mock'
 import { jobEmoji, jobHours, jobTitle, stepIndex, totalFor, unitLabel, WORK_STEPS, type WorkStatus } from '../../data/jobs'
@@ -15,44 +15,44 @@ const methodLabel = (id: string) => PAYMENT_METHODS.find(p => p.id === id)?.labe
 export function AssignedScreen({ m, onView, onMessage }: { m: MyJob; onView: () => void; onMessage: () => void }) {
   const { job } = m
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-surface">
       <StatusBar/>
       <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-8 text-center">
         <div className="relative w-24 h-24 mb-5">
           <span className="radar-ring"/>
-          <div className="absolute inset-0 bg-emerald-500 rounded-full flex items-center justify-center text-5xl anim-bounce-in shadow-xl shadow-emerald-200">🎉</div>
+          <div className="absolute inset-0 bg-brand rounded-full flex items-center justify-center text-5xl anim-bounce-in"><Glyph e="🎉"/></div>
         </div>
-        <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Job assigned to you!</h2>
-        <p className="text-gray-500 text-sm mb-6">{job.hirer.name} accepted your bid of <b className="text-gray-800">{rs(m.unit)}{unitLabel(job.payType)}</b></p>
+        <h2 className="text-2xl display text-ink mb-1">Job assigned to you!</h2>
+        <p className="text-muted text-sm mb-6">{job.hirer.name} accepted your bid of <b className="text-ink">{rs(m.unit)}{unitLabel(job.payType)}</b></p>
 
-        <div className="w-full bg-gray-50 rounded-2xl p-4 text-left">
-          <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-            <span className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl">{jobEmoji(job)}</span>
+        <div className="w-full bg-canvas rounded-card p-4 text-left">
+          <div className="flex items-center gap-3 pb-3 border-b border-line">
+            <span className="w-12 h-12 bg-surface rounded-tile flex items-center justify-center text-2xl"><Glyph e={jobEmoji(job)}/></span>
             <div>
-              <div className="font-extrabold text-gray-900">{jobTitle(job)}</div>
-              <div className="text-xs text-gray-500">{jobHours(job)} hours · {job.toolsRequired ? 'Bring your tools' : 'Tools provided'}</div>
+              <div className="display text-ink">{jobTitle(job)}</div>
+              <div className="text-xs text-muted">{jobHours(job)} hours · {job.toolsRequired ? 'Bring your tools' : 'Tools provided'}</div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 pt-3">
-            <div className="bg-white rounded-xl p-3">
-              <div className="text-[10px] text-gray-400 font-bold uppercase">Date</div>
-              <div className="font-bold text-gray-900 text-sm">{job.dateLabel}</div>
+            <div className="bg-surface rounded-tile p-3">
+              <div className="text-[10px] text-subtle font-bold">Date</div>
+              <div className="font-bold text-ink text-sm">{job.dateLabel}</div>
             </div>
-            <div className="bg-white rounded-xl p-3">
-              <div className="text-[10px] text-gray-400 font-bold uppercase">Time</div>
-              <div className="font-bold text-gray-900 text-sm">{job.time}</div>
+            <div className="bg-surface rounded-tile p-3">
+              <div className="text-[10px] text-subtle font-bold">Time</div>
+              <div className="font-bold text-ink text-sm">{job.time}</div>
             </div>
           </div>
-          <div className="flex items-start gap-2 bg-white rounded-xl p-3 mt-2">
-            <MapPinIcon size={16} className="text-red-500 mt-0.5"/>
+          <div className="flex items-start gap-2 bg-surface rounded-tile p-3 mt-2">
+            <MapPinIcon size={16} className="text-danger mt-0.5"/>
             <div>
-              <div className="font-bold text-sm text-gray-900">{job.address}</div>
-              <div className="text-xs text-gray-500">{job.area} · {job.distanceKm} km away</div>
+              <div className="font-bold text-sm text-ink">{job.address}</div>
+              <div className="text-xs text-muted">{job.area} · {job.distanceKm} km away</div>
             </div>
           </div>
-          <div className="flex items-center justify-between bg-emerald-50 rounded-xl p-3 mt-2">
-            <span className="text-sm text-emerald-800 font-semibold">You'll earn</span>
-            <span className="font-extrabold text-emerald-700">{rs(totalFor(job, m.unit))}</span>
+          <div className="flex items-center justify-between bg-mint rounded-tile p-3 mt-2 text-brand">
+            <span className="text-sm text-brand font-semibold">You'll earn</span>
+            <span className="display text-brand">{rs(totalFor(job, m.unit))}</span>
           </div>
         </div>
       </div>
@@ -90,62 +90,62 @@ export function ActiveJobScreen({ m, onBack, onStatus, onFinish, onMessage, onCa
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${job.address}, ${job.area}`)}`
 
   return (
-    <div className="flex flex-col h-full bg-white relative">
+    <div className="flex flex-col h-full bg-surface relative">
       <MapView
         height={210}
         pins={[{ id: 'me', ...workerPos, kind: 'me' }, { id: 'job', x: 70, y: 40, kind: 'job', label: 'Job site' }]}
         route={idx < 2 ? [workerPos, { x: 70, y: 40 }] : undefined}
       >
         <div className="absolute top-0 left-0 right-0"><StatusBar/></div>
-        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
-          <ChevronLeft size={18} className="text-gray-700"/>
+        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-md">
+          <ChevronLeft size={18} className="text-label"/>
         </button>
-        <a href={mapsUrl} target="_blank" rel="noreferrer" className="absolute top-10 right-4 px-3 h-10 bg-blue-600 text-white rounded-full flex items-center gap-1.5 shadow-md text-xs font-bold">
+        <a href={mapsUrl} target="_blank" rel="noreferrer" className="absolute top-10 right-4 px-3 h-10 bg-brand text-white rounded-full flex items-center gap-1.5 shadow-md text-xs font-bold">
           <NavigateIcon size={14}/> Navigate
         </a>
       </MapView>
 
-      <div className="flex-1 overflow-y-auto -mt-4 bg-white rounded-t-3xl relative">
-        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-3"/>
-        <div className="px-5 pt-3 pb-4 border-b border-gray-100">
+      <div className="flex-1 overflow-y-auto -mt-4 bg-surface rounded-t-3xl relative">
+        <div className="w-10 h-1 bg-line rounded-full mx-auto mt-3"/>
+        <div className="px-5 pt-3 pb-4 border-b border-divider">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
-              <div className="font-extrabold text-lg text-gray-900 truncate">{jobTitle(job)}</div>
-              <div className="text-xs text-gray-500">{job.dateLabel} · {job.time} · {jobHours(job)}h</div>
+              <div className="display text-lg text-ink truncate">{jobTitle(job)}</div>
+              <div className="text-xs text-muted">{job.dateLabel} · {job.time} · {jobHours(job)}h</div>
             </div>
             <Badge label={WORK_STEPS[idx].short} color={idx >= 3 ? 'green' : 'blue'} dot/>
           </div>
         </div>
 
         {/* Hirer */}
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+        <div className="px-5 py-4 border-b border-divider flex items-center gap-3">
           <Avatar name={job.hirer.name} size={46} tone="blue"/>
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-gray-900">{job.hirer.name}</div>
-            <div className="flex items-center gap-1.5"><Rating value={job.hirer.rating}/><span className="text-xs text-gray-400">· Hirer</span></div>
+            <div className="font-bold text-ink">{job.hirer.name}</div>
+            <div className="flex items-center gap-1.5"><Rating value={job.hirer.rating}/><span className="text-xs text-subtle">· Hirer</span></div>
           </div>
-          <a href={`tel:${job.hirer.phone.replace(/\s/g, '')}`} aria-label="Call" className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center">
-            <PhoneIcon size={17} className="text-gray-700"/>
+          <a href={`tel:${job.hirer.phone.replace(/\s/g, '')}`} aria-label="Call" className="w-11 h-11 bg-divider rounded-tile flex items-center justify-center">
+            <PhoneIcon size={17} className="text-label"/>
           </a>
-          <button onClick={onMessage} aria-label="Message" className="w-11 h-11 bg-emerald-500 rounded-xl flex items-center justify-center shadow-md shadow-emerald-200">
+          <button onClick={onMessage} aria-label="Message" className="w-11 h-11 bg-brand rounded-tile flex items-center justify-center">
             <MessageIcon size={17} className="text-white"/>
           </button>
         </div>
 
         {/* Location */}
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-5 py-4 border-b border-divider">
           <Label>Job location</Label>
           <div className="flex items-start gap-2.5">
-            <MapPinIcon size={18} className="text-red-500 mt-0.5"/>
+            <MapPinIcon size={18} className="text-danger mt-0.5"/>
             <div className="flex-1">
-              <div className="font-bold text-sm text-gray-900">{job.address}</div>
-              <div className="text-xs text-gray-500">{job.area} · {job.distanceKm} km away</div>
+              <div className="font-bold text-sm text-ink">{job.address}</div>
+              <div className="text-xs text-muted">{job.area} · {job.distanceKm} km away</div>
             </div>
           </div>
         </div>
 
         {/* Progress */}
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-5 py-4 border-b border-divider">
           <Label>Job progress</Label>
           {WORK_STEPS.map((s, i) => {
             const done = i < idx
@@ -153,28 +153,28 @@ export function ActiveJobScreen({ m, onBack, onStatus, onFinish, onMessage, onCa
             return (
               <div key={s.key} className="flex items-start gap-3">
                 <div className="flex flex-col items-center">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${done ? 'bg-emerald-500 border-emerald-500' : cur ? 'bg-white border-emerald-500' : 'bg-white border-gray-200'}`}>
-                    {done ? <CheckIcon size={12} className="text-white"/> : cur ? <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"/> : null}
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${done ? 'bg-brand border-brand' : cur ? 'bg-surface border-brand' : 'bg-surface border-line'}`}>
+                    {done ? <CheckIcon size={12} className="text-white"/> : cur ? <span className="w-2.5 h-2.5 bg-brand rounded-full animate-pulse"/> : null}
                   </div>
-                  {i < WORK_STEPS.length - 1 && <div className={`w-0.5 h-5 ${done ? 'bg-emerald-400' : 'bg-gray-100'}`}/>}
+                  {i < WORK_STEPS.length - 1 && <div className={`w-0.5 h-5 ${done ? 'bg-brand' : 'bg-divider'}`}/>}
                 </div>
-                <div className={`text-sm pt-0.5 ${cur ? 'font-bold text-gray-900' : done ? 'text-gray-500' : 'text-gray-300'}`}>{s.label}</div>
+                <div className={`text-sm pt-0.5 ${cur ? 'font-bold text-ink' : done ? 'text-muted' : 'text-subtle'}`}>{s.label}</div>
               </div>
             )
           })}
         </div>
 
         {/* Details */}
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-5 py-4 border-b border-divider">
           <Label>Work details</Label>
           {job.lines.map(l => (
             <Row key={l.subId} label={findSub(l.subId)?.sub.name ?? ''} value={`${l.hours}h`}/>
           ))}
           <div className="flex items-center gap-2 mt-2 text-xs">
-            <ToolIcon size={13} className={job.toolsRequired ? 'text-amber-500' : 'text-gray-400'}/>
-            <span className={job.toolsRequired ? 'text-amber-700 font-semibold' : 'text-gray-500'}>{job.toolsRequired ? 'Bring your own tools' : 'Hirer provides tools'}</span>
+            <ToolIcon size={13} className={job.toolsRequired ? 'text-accent' : 'text-subtle'}/>
+            <span className={job.toolsRequired ? 'text-warn-ink font-semibold' : 'text-muted'}>{job.toolsRequired ? 'Bring your own tools' : 'Hirer provides tools'}</span>
           </div>
-          <p className="text-sm text-gray-600 mt-2 leading-relaxed">{job.description}</p>
+          <p className="text-sm text-muted mt-2 leading-relaxed">{job.description}</p>
           {job.photos.length > 0 && <div className="flex gap-2 mt-3">{job.photos.map((p, i) => <PhotoThumb key={i} src={p} size={56}/>)}</div>}
         </div>
 
@@ -183,19 +183,19 @@ export function ActiveJobScreen({ m, onBack, onStatus, onFinish, onMessage, onCa
           <Row label="Agreed rate" value={`${rs(m.unit)}${unitLabel(job.payType)}`}/>
           <Row label="Payment method" value={methodLabel(m.paymentMethod)}/>
           <Row label="Estimated earning" value={rs(totalFor(job, m.unit))} strong/>
-          <button onClick={() => setConfirmCancel(true)} className="w-full mt-4 py-3 text-sm font-bold text-red-500 bg-red-50 rounded-xl">
+          <button onClick={() => setConfirmCancel(true)} className="w-full mt-4 py-3 text-sm font-bold text-danger bg-danger-tint rounded-tile">
             Can't make it? Cancel job
           </button>
         </div>
       </div>
 
-      <div className="px-5 pb-7 pt-3 border-t border-gray-100 bg-white">
+      <div className="px-5 pb-7 pt-3 border-t border-divider bg-surface">
         {next ? (
-          <Button className="w-full" onClick={() => onStatus(next.next)}>{next.emoji} {next.label}</Button>
+          <Button className="w-full" onClick={() => onStatus(next.next)}><Glyph e={next.emoji}/> {next.label}</Button>
         ) : (
-          <Button className="w-full" onClick={onFinish}>✅ {m.status === 'started' ? 'Finish work' : 'Continue completion'}</Button>
+          <Button className="w-full" onClick={onFinish}><Glyph e="✅"/> {m.status === 'started' ? 'Finish work' : 'Continue completion'}</Button>
         )}
-        <div className="text-center text-[11px] text-gray-400 mt-2">{job.hirer.name.split(' ')[0]} sees every status update live</div>
+        <div className="text-center text-[11px] text-subtle mt-2">{job.hirer.name.split(' ')[0]} sees every status update live</div>
       </div>
 
       <Confirm
@@ -245,16 +245,16 @@ export function CompletionFlow({ m, onBack, onComplete }: {
 
   if (done) {
     return (
-      <div className="flex flex-col h-full bg-white">
+      <div className="flex flex-col h-full bg-surface">
         <StatusBar/>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-          <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-5xl mb-5 anim-bounce-in shadow-xl shadow-emerald-200">💰</div>
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Job completed!</h2>
-          <p className="text-gray-500 text-sm mb-6">Great work. Your earnings have been updated.</p>
-          <div className="w-full bg-emerald-50 rounded-2xl p-5">
-            <div className="text-sm text-emerald-700 font-semibold">Added to your earnings</div>
-            <div className="text-3xl font-extrabold text-emerald-700 mt-1">+{rs(final)}</div>
-            <div className="text-xs text-emerald-600 mt-1">{jobTitle(job)} · {methodLabel(m.paymentMethod)}</div>
+          <div className="w-24 h-24 bg-brand rounded-full flex items-center justify-center text-5xl mb-5 anim-bounce-in"><Glyph e="💰"/></div>
+          <h2 className="text-2xl display text-ink mb-1">Job completed!</h2>
+          <p className="text-muted text-sm mb-6">Great work. Your earnings have been updated.</p>
+          <div className="w-full bg-mint rounded-card p-5 text-brand">
+            <div className="text-sm text-brand font-semibold">Added to your earnings</div>
+            <div className="text-3xl display text-brand mt-1">+{rs(final)}</div>
+            <div className="text-xs text-brand mt-1">{jobTitle(job)} · {methodLabel(m.paymentMethod)}</div>
           </div>
         </div>
         <div className="px-5 pb-8">
@@ -267,39 +267,39 @@ export function CompletionFlow({ m, onBack, onComplete }: {
   const titles = ['', 'Confirm job list', 'Confirm payment', 'Rate the hirer']
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-surface">
       <AppHeader title={titles[step]} subtitle={jobTitle(job)} onBack={step === 1 ? onBack : () => setStep(step - 1)} step={step} total={3}/>
       <div className="flex-1 overflow-y-auto px-5 py-5">
         {step === 1 && (
           <div className="anim-fade-in">
-            <h2 className="text-xl font-extrabold text-gray-900 mb-1">Is everything done?</h2>
-            <p className="text-sm text-gray-500 mb-4">Tick each task you completed. The hirer will see this list.</p>
+            <h2 className="text-xl display text-ink mb-1">Is everything done?</h2>
+            <p className="text-sm text-muted mb-4">Tick each task you completed. The hirer will see this list.</p>
             <div className="space-y-2">
               {job.lines.map(l => {
                 const on = !!checked[l.subId]
                 return (
                   <button key={l.subId} onClick={() => setChecked(c => ({ ...c, [l.subId]: !on }))}
-                    className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${on ? 'border-emerald-300 bg-emerald-50' : 'border-gray-100'}`}>
+                    className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${on ? 'border-brand bg-mint' : 'border-divider'}`}>
                     <Check checked={on}/>
                     <div className="flex-1">
-                      <div className="font-bold text-sm text-gray-900">{findSub(l.subId)?.sub.name}</div>
-                      <div className="text-xs text-gray-500">{findSub(l.subId)?.sub.desc} · {l.hours}h planned</div>
+                      <div className="font-bold text-sm text-ink">{findSub(l.subId)?.sub.name}</div>
+                      <div className="text-xs text-muted">{findSub(l.subId)?.sub.desc} · {l.hours}h planned</div>
                     </div>
                   </button>
                 )
               })}
               <button onClick={() => setChecked(c => ({ ...c, cleanup: !c.cleanup }))}
-                className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${checked.cleanup ? 'border-emerald-300 bg-emerald-50' : 'border-gray-100'}`}>
+                className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${checked.cleanup ? 'border-brand bg-mint' : 'border-divider'}`}>
                 <Check checked={!!checked.cleanup}/>
-                <div className="font-bold text-sm text-gray-900">Work area cleaned up</div>
+                <div className="font-bold text-sm text-ink">Work area cleaned up</div>
               </button>
             </div>
 
             {job.payType === 'hourly' && (
-              <div className="mt-5 bg-gray-50 rounded-2xl p-4">
+              <div className="mt-5 bg-canvas rounded-card p-4">
                 <Label>Hours actually worked</Label>
                 <NumberStepper value={hours} onChange={setHours} min={1} max={12} format={v => `${v} hr${v > 1 ? 's' : ''}`}/>
-                <div className="text-center text-xs text-gray-500 mt-2">{rs(m.unit)}/hr × {hours} = <b className="text-gray-900">{rs(final)}</b></div>
+                <div className="text-center text-xs text-muted mt-2">{rs(m.unit)}/hr × {hours} = <b className="text-ink">{rs(final)}</b></div>
               </div>
             )}
 
@@ -312,34 +312,34 @@ export function CompletionFlow({ m, onBack, onComplete }: {
 
         {step === 2 && (
           <div className="anim-fade-in">
-            <div className="text-center bg-gray-50 rounded-3xl p-6 mb-5">
-              <div className="text-xs text-gray-500 font-semibold">Final amount</div>
-              <div className="text-4xl font-extrabold text-gray-900 mt-1">{rs(final)}</div>
-              <div className="text-xs text-gray-500 mt-1">{job.payType === 'hourly' ? `${rs(m.unit)}/hr × ${hours}h` : 'Fixed price'}</div>
+            <div className="text-center bg-canvas rounded-sheet p-6 mb-5">
+              <div className="text-xs text-muted font-semibold">Final amount</div>
+              <div className="text-4xl display text-ink mt-1">{rs(final)}</div>
+              <div className="text-xs text-muted mt-1">{job.payType === 'hourly' ? `${rs(m.unit)}/hr × ${hours}h` : 'Fixed price'}</div>
             </div>
             <Row label="Hirer" value={job.hirer.name}/>
             <Row label="Payment method" value={methodLabel(m.paymentMethod)}/>
             <Row label="Platform fee" value="Rs 0 (promo)"/>
-            <div className="border-t border-gray-100 mt-1 pt-1"><Row label="You receive" value={rs(final)} strong/></div>
+            <div className="border-t border-divider mt-1 pt-1"><Row label="You receive" value={rs(final)} strong/></div>
 
             {isCash ? (
-              <button onClick={() => setPaid(p => !p)} className={`mt-5 w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${paid ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200'}`}>
+              <button onClick={() => setPaid(p => !p)} className={`mt-5 w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${paid ? 'border-brand bg-mint' : 'border-line'}`}>
                 <Check checked={paid}/>
                 <div>
-                  <div className="font-bold text-sm text-gray-900">I received {rs(final)} in cash</div>
-                  <div className="text-xs text-gray-500">Confirm only after you have the money</div>
+                  <div className="font-bold text-sm text-ink">I received {rs(final)} in cash</div>
+                  <div className="text-xs text-muted">Confirm only after you have the money</div>
                 </div>
               </button>
             ) : (
-              <div className={`mt-5 p-4 rounded-2xl flex items-center gap-3 transition-all ${digitalState === 'received' ? 'bg-emerald-50' : 'bg-amber-50'}`}>
+              <div className={`mt-5 p-4 rounded-card flex items-center gap-3 transition-all ${digitalState === 'received' ? 'bg-mint' : 'bg-warn'}`}>
                 {digitalState === 'received'
-                  ? <span className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center anim-bounce-in"><CheckIcon size={16} className="text-white"/></span>
-                  : <span className="w-8 h-8 border-[3px] border-amber-400 border-t-transparent rounded-full animate-spin"/>}
+                  ? <span className="w-8 h-8 bg-brand rounded-full flex items-center justify-center anim-bounce-in"><CheckIcon size={16} className="text-white"/></span>
+                  : <span className="w-8 h-8 border-[3px] border-accent border-t-transparent rounded-full animate-spin"/>}
                 <div>
-                  <div className={`font-bold text-sm ${digitalState === 'received' ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  <div className={`font-bold text-sm ${digitalState === 'received' ? 'text-brand' : 'text-warn-ink'}`}>
                     {digitalState === 'received' ? `Payment received via ${methodLabel(m.paymentMethod)}` : `Waiting for ${job.hirer.name.split(' ')[0]} to pay…`}
                   </div>
-                  <div className="text-xs text-gray-500">{digitalState === 'received' ? 'Transferred to your DoAura wallet' : 'Hirer was asked to confirm the payment'}</div>
+                  <div className="text-xs text-muted">{digitalState === 'received' ? 'Transferred to your DoAura wallet' : 'Hirer was asked to confirm the payment'}</div>
                 </div>
               </div>
             )}
@@ -349,22 +349,22 @@ export function CompletionFlow({ m, onBack, onComplete }: {
         {step === 3 && (
           <div className="anim-fade-in text-center">
             <Avatar name={job.hirer.name} size={72} tone="blue"/>
-            <div className="font-extrabold text-gray-900 text-lg mt-3">How was {job.hirer.name.split(' ')[0]}?</div>
-            <div className="text-sm text-gray-500 mb-5">Your rating helps other workers.</div>
+            <div className="display text-ink text-lg mt-3">How was {job.hirer.name.split(' ')[0]}?</div>
+            <div className="text-sm text-muted mb-5">Your rating helps other workers.</div>
             <StarInput value={rating} onChange={setRating}/>
             <div className="flex flex-wrap gap-2 justify-center mt-4">
               {RATE_TAGS.map(t => {
                 const on = tags.includes(t)
                 return (
                   <button key={t} onClick={() => setTags(on ? tags.filter(x => x !== t) : [...tags, t])}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${on ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-200 text-gray-600'}`}>
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${on ? 'bg-brand border-brand text-white' : 'border-line text-muted'}`}>
                     {t}
                   </button>
                 )
               })}
             </div>
             <textarea rows={3} placeholder="Add a comment (optional)"
-              className="w-full mt-5 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-emerald-400 resize-none"/>
+              className="w-full mt-5 px-4 py-3 bg-canvas border border-line rounded-tile text-sm outline-none focus:border-brand resize-none"/>
           </div>
         )}
       </div>

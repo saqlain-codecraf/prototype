@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Avatar, Badge, Button, Confirm, CountdownBar, MapView, Radio, Rating, Row, Sheet, StatusBar } from '../../components/ui'
-import { ChevronLeft, MapPinIcon, ClockIcon, ToolIcon, ShieldIcon } from '../../components/Icons'
+import { ChevronLeft, MapPinIcon, ClockIcon, ToolIcon, ShieldIcon, Glyph } from '../../components/Icons'
 import { rs } from '../../data/catalog'
 import { CANDIDATES, PAYMENT_METHODS, type Candidate } from '../../data/mock'
 import { jobEmoji, jobHours, jobTitle, jobUnitPrice, totalFor, uid, unitLabel } from '../../data/jobs'
@@ -99,7 +99,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
   const unit = unitLabel(job.payType)
 
   return (
-    <div className="relative h-full bg-white overflow-hidden">
+    <div className="relative h-full bg-surface overflow-hidden">
       <div className="absolute inset-0">
         <MapView height="100%" pins={pins}>
           <div className="absolute w-44 h-44 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ left: '50%', top: '46%' }}>
@@ -110,13 +110,13 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
 
       <div className="absolute top-0 left-0 right-0"><StatusBar/></div>
       <div className="absolute top-10 left-4 right-4 flex items-center gap-2 z-10">
-        <button onClick={onBack} aria-label="Back" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
-          <ChevronLeft size={18} className="text-gray-700"/>
+        <button onClick={onBack} aria-label="Back" className="w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-md">
+          <ChevronLeft size={18} className="text-label"/>
         </button>
         <div className="flex-1"/>
-        <div className="bg-white rounded-full px-3 py-2 shadow-md flex items-center gap-1.5">
-          <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>
-          <span className="text-xs font-bold text-gray-800">{notified} workers notified</span>
+        <div className="bg-surface rounded-full px-3 py-2 shadow-md flex items-center gap-1.5">
+          <span className="w-2 h-2 bg-brand rounded-full animate-pulse"/>
+          <span className="text-xs font-bold text-ink">{notified} workers notified</span>
         </div>
       </div>
 
@@ -127,30 +127,30 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
           const toolsWarn = job.toolsRequired && !b.c.hasTools
           return (
             <div key={b.id} onClick={() => setFocus(b.id)}
-              className={`pointer-events-auto bg-white rounded-2xl shadow-xl overflow-hidden anim-toast border-2 ${focus === b.id ? 'border-emerald-400' : 'border-transparent'}`}>
-              <CountdownBar key={b.id} seconds={BID_TTL} onEnd={() => expire(b)} color="bg-emerald-500"/>
+              className={`pointer-events-auto bg-surface rounded-card shadow-xl overflow-hidden anim-toast border-2 ${focus === b.id ? 'border-brand' : 'border-transparent'}`}>
+              <CountdownBar key={b.id} seconds={BID_TTL} onEnd={() => expire(b)} color="bg-brand"/>
               <div className="p-3">
                 <div className="flex items-center gap-3">
                   <Avatar name={b.c.name} size={44}/>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-sm text-gray-900 truncate">{b.c.name}</span>
-                      {b.c.verified && <ShieldIcon size={12} className="text-emerald-500 flex-shrink-0"/>}
+                      <span className="font-bold text-sm text-ink truncate">{b.c.name}</span>
+                      {b.c.verified && <ShieldIcon size={12} className="text-brand flex-shrink-0"/>}
                       {b.rebid && <Badge label="New offer" color="purple"/>}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted mt-0.5 whitespace-nowrap">
                       <Rating value={b.c.rating}/><span>· {b.c.jobs} jobs</span>
                     </div>
-                    <div className="flex items-center gap-2.5 text-[11px] text-gray-500 mt-0.5 whitespace-nowrap">
+                    <div className="flex items-center gap-2.5 text-[11px] text-muted mt-0.5 whitespace-nowrap">
                       <span className="flex items-center gap-0.5"><MapPinIcon size={10}/>{b.c.distanceKm} km</span>
                       <span className="flex items-center gap-0.5"><ClockIcon size={10}/>{b.c.etaMin} min</span>
-                      <span className={`flex items-center gap-0.5 ${toolsWarn ? 'text-amber-600 font-semibold' : 'text-emerald-600'}`}><ToolIcon size={10}/>{b.c.hasTools ? 'Tools' : 'No tools'}</span>
+                      <span className={`flex items-center gap-0.5 ${toolsWarn ? 'text-warn-ink font-semibold' : 'text-brand'}`}><ToolIcon size={10}/>{b.c.hasTools ? 'Tools' : 'No tools'}</span>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="font-extrabold text-lg text-gray-900 leading-tight">{rs(b.amount)}</div>
-                    <div className="text-[10px] text-gray-400">{job.payType === 'hourly' ? 'per hour' : 'total'}</div>
-                    <span className={`inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${diff > 0 ? 'bg-amber-100 text-amber-700' : diff < 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                    <div className="display text-lg text-ink leading-tight">{rs(b.amount)}</div>
+                    <div className="text-[10px] text-subtle">{job.payType === 'hourly' ? 'per hour' : 'total'}</div>
+                    <span className={`inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${diff > 0 ? 'bg-warn text-warn-ink' : diff < 0 ? 'bg-mint text-brand' : 'bg-divider text-muted'}`}>
                       {diff === 0 ? 'Your price' : `${diff > 0 ? '+' : ''}${diff}%`}
                     </span>
                   </div>
@@ -168,27 +168,27 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
       </div>
 
       {/* Bottom sheet — job summary + search status */}
-      <div className="absolute left-0 right-0 bottom-0 bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)] px-5 pt-3 pb-6 z-10">
-        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3"/>
+      <div className="absolute left-0 right-0 bottom-0 bg-surface rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)] px-5 pt-3 pb-6 z-10">
+        <div className="w-10 h-1 bg-line rounded-full mx-auto mb-3"/>
         <div className="flex items-center gap-3">
-          <span className="w-11 h-11 bg-emerald-50 rounded-xl flex items-center justify-center text-2xl">{jobEmoji(job)}</span>
+          <span className="w-11 h-11 bg-mint rounded-tile flex items-center justify-center text-2xl text-brand"><Glyph e={jobEmoji(job)}/></span>
           <div className="flex-1 min-w-0">
-            <div className="font-extrabold text-gray-900 truncate">{jobTitle(job)}</div>
-            <div className="text-xs text-gray-500 truncate">{hours}h · {job.dateLabel}, {job.time} · {job.area.split(',')[0]}</div>
+            <div className="display text-ink truncate">{jobTitle(job)}</div>
+            <div className="text-xs text-muted truncate">{hours}h · {job.dateLabel}, {job.time} · {job.area.split(',')[0]}</div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] text-gray-400 font-semibold">Your offer</div>
-            <div className="font-extrabold text-emerald-600 text-sm">{rs(offer)}{job.payType === 'hourly' ? '/hr' : ''}</div>
+            <div className="text-[10px] text-subtle font-semibold">Your offer</div>
+            <div className="display text-brand text-sm">{rs(offer)}{job.payType === 'hourly' ? '/hr' : ''}</div>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-sm font-bold text-gray-900">
-            <span className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"/>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-divider">
+          <div className="flex items-center gap-2 text-sm font-bold text-ink">
+            <span className="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin"/>
             {bids.length
               ? `${bids.length} live offer${bids.length > 1 ? 's' : ''} · pick one`
               : streamDone ? 'Waiting for more offers…' : 'Finding workers near you…'}
           </div>
-          <button onClick={() => setConfirmCancel(true)} className="text-xs font-bold text-red-500">Cancel</button>
+          <button onClick={() => setConfirmCancel(true)} className="text-xs font-bold text-danger">Cancel</button>
         </div>
       </div>
 
@@ -202,11 +202,11 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
       }} title={sheetStep === 'confirm' ? 'Confirm worker' : 'Payment method'}>
         {selected && sheetStep === 'confirm' && (
           <div className="anim-fade-in">
-            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl">
+            <div className="flex items-center gap-3 p-4 bg-canvas rounded-card">
               <Avatar name={selected.c.name} size={56}/>
               <div className="flex-1">
-                <div className="font-extrabold text-gray-900">{selected.c.name}</div>
-                <div className="flex items-center gap-1.5"><Rating value={selected.c.rating}/><span className="text-xs text-gray-400">· {selected.c.jobs} completed jobs</span></div>
+                <div className="display text-ink">{selected.c.name}</div>
+                <div className="flex items-center gap-1.5"><Rating value={selected.c.rating}/><span className="text-xs text-subtle">· {selected.c.jobs} completed jobs</span></div>
                 <div className="flex gap-1 mt-1"><Badge label="ID verified" color="green"/>{selected.c.hasTools && <Badge label="Own tools" color="blue"/>}</div>
               </div>
             </div>
@@ -215,10 +215,10 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
               <Row label="Agreed rate" value={`${rs(selected.amount)}${unit}`}/>
               {job.payType === 'hourly' && <Row label="Duration" value={`${hours} hours`}/>}
               <Row label="Arrives in" value={`~${selected.c.etaMin} min`}/>
-              <div className="border-t border-gray-100 mt-1 pt-1"><Row label="Estimated total" value={rs(totalFor(job, selected.amount))} strong/></div>
+              <div className="border-t border-divider mt-1 pt-1"><Row label="Estimated total" value={rs(totalFor(job, selected.amount))} strong/></div>
             </div>
             {job.toolsRequired && !selected.c.hasTools && (
-              <div className="mt-3 p-3 bg-amber-50 rounded-xl text-xs text-amber-700 font-semibold">⚠️ This worker doesn't have their own tools — you asked for a worker who brings tools.</div>
+              <div className="mt-3 p-3 bg-warn rounded-tile text-xs text-warn-ink font-semibold"><Glyph e="⚠️"/> This worker doesn't have their own tools — you asked for a worker who brings tools.</div>
             )}
             <Button className="w-full mt-5" onClick={() => setSheetStep('payment')}>Continue to payment</Button>
           </div>
@@ -228,14 +228,14 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
             <div className="space-y-2">
               {PAYMENT_METHODS.map(p => (
                 <button key={p.id} onClick={() => setMethod(p.id)}
-                  className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all ${method === p.id ? 'border-emerald-400 bg-emerald-50' : 'border-gray-100'}`}>
-                  <span className="text-2xl">{p.icon}</span>
-                  <div className="flex-1"><div className="font-bold text-sm text-gray-900">{p.label}</div><div className="text-xs text-gray-500">{p.sub}</div></div>
+                  className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${method === p.id ? 'border-brand bg-mint' : 'border-divider'}`}>
+                  <span className="text-2xl"><Glyph e={p.icon}/></span>
+                  <div className="flex-1"><div className="font-bold text-sm text-ink">{p.label}</div><div className="text-xs text-muted">{p.sub}</div></div>
                   <Radio checked={method === p.id}/>
                 </button>
               ))}
             </div>
-            <div className="mt-4 p-3 bg-gray-50 rounded-xl text-xs text-gray-500">
+            <div className="mt-4 p-3 bg-canvas rounded-tile text-xs text-muted">
               {method === 'cash' ? 'Pay the worker in cash once the job is done.' : 'You’ll confirm the payment after the worker finishes. Nothing is charged now.'}
             </div>
             <div className="flex gap-2 mt-4">

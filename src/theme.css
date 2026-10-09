@@ -1,0 +1,58 @@
+/*
+ * Doaura design tokens — the single source of truth for colour, type, radius and spacing.
+ * Tailwind v4 turns each token into utilities: --color-brand → bg-brand / text-brand / border-brand,
+ * --font-display → font-display, --radius-card → rounded-card, --text-title → text-title, etc.
+ * `static` keeps every variable on :root so TS/SVG can read them via var(--color-…).
+ */
+@theme static {
+  /* Colour */
+  --color-brand: #0B5D4B;        /* emerald: headers, selected states, progress, links */
+  --color-accent: #FFC83D;       /* marigold: CTAs on green/dark, badges, highlights */
+  --color-ink: #10231D;          /* main text, primary dark buttons */
+  --color-canvas: #F4F7F5;       /* app background */
+  --color-surface: #FFFFFF;      /* cards */
+  --color-line: #DCE4E0;         /* borders */
+  --color-divider: #EEF2F0;      /* dividers, quiet fills */
+  --color-muted: #4A5A54;        /* secondary text */
+  --color-label: #3F504A;        /* form & section labels */
+  --color-subtle: #66766F;       /* captions, placeholders (AA on white) */
+  --color-mint: #E2F0EA;         /* selected tint, icon tiles (use brand text on it) */
+  --color-warn: #FFF4D6;         /* warning tint */
+  --color-warn-ink: #6B4A00;     /* text on warning tint */
+  --color-danger: #B42318;
+  --color-danger-tint: #FDECEA;
+  --color-success: #1E9E6A;      /* success / online */
+  --color-placeholder: #CFE2DA;  /* image placeholder */
+
+  /* Type */
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'DM Sans', sans-serif;
+  --text-price: 34px;    --text-price--line-height: 1.1;
+  --text-title: 30px;    --text-title--line-height: 1.15;
+  --text-heading: 22px;  --text-heading--line-height: 1.2;
+  --text-body: 15px;     --text-body--line-height: 1.5;
+  --text-ui: 13px;       --text-ui--line-height: 1.35;
+  --text-small: 12px;    --text-small--line-height: 1.35;
+  --text-tab: 11px;      --text-tab--line-height: 1.2;
+  --tracking-display: -0.025em;
+
+  /* Radius */
+  --radius-tile: 14px;   /* icon tiles, small controls */
+  --radius-input: 14px;
+  --radius-btn: 16px;
+  --radius-card: 22px;
+  --radius-sheet: 28px;
+
+  /* Spacing */
+  --spacing-screen: 20px;  /* screen side padding → px-screen */
+  --spacing-touch: 44px;   /* minimum touch target → min-h-touch / size-touch */
+  --spacing-btn: 56px;     /* primary button height → h-btn */
+  --spacing-field: 52px;   /* input height → h-field */
+}
+
+/* Headings, prices and the logo share one display style. */
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: var(--tracking-display);
+}

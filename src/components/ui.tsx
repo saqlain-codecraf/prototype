@@ -1,14 +1,28 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChevronLeft, StarFilled, CheckIcon, XIcon, MapPinIcon } from './Icons'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { ChevronLeft, StarFilled, CheckIcon, XIcon, MapPinIcon, CameraIcon, Glyph } from './Icons'
 
 // ------------------------------------------------------------------
 // Chrome
 // ------------------------------------------------------------------
 
+/** Which app is showing: hirer screens use a brand header, worker screens an ink header. */
+export type Tone = 'neutral' | 'hirer' | 'worker'
+export const ToneContext = createContext<Tone>('neutral')
+export const useTone = () => useContext(ToneContext)
+
+/** Header surface for the current app; `dark` = text and controls should be light. */
+export function headerSurface(tone: Tone) {
+  return tone === 'hirer'
+    ? { bg: 'bg-brand', text: 'text-white', sub: 'text-white/75', btn: 'bg-white/15 text-white', dark: true }
+    : tone === 'worker'
+      ? { bg: 'bg-ink', text: 'text-white', sub: 'text-white/70', btn: 'bg-white/15 text-white', dark: true }
+      : { bg: 'bg-surface', text: 'text-ink', sub: 'text-muted', btn: 'bg-divider text-ink', dark: false }
+}
+
 export function StatusBar({ light = false }: { light?: boolean }) {
-  const c = light ? 'text-white' : 'text-gray-900'
+  const c = light ? 'text-white' : 'text-ink'
   return (
-    <div className={`fake-status flex items-center justify-between px-5 pt-3 pb-1 text-[11px] font-semibold ${c}`}>
+    <div className={`fake-status flex items-center justify-between px-5 pt-3 pb-1 text-tab font-bold ${c}`}>
       <span>9:41</span>
       <div className="flex items-center gap-1.5">
         <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor">
@@ -26,6 +40,7 @@ export function StatusBar({ light = false }: { light?: boolean }) {
   )
 }
 
+/** Back-navigation header for pushed screens; colour follows the app tone. */
 export function AppHeader({ title, subtitle, onBack, right, step, total }: {
   title: string
   subtitle?: string
@@ -34,52 +49,114 @@ export function AppHeader({ title, subtitle, onBack, right, step, total }: {
   step?: number
   total?: number
 }) {
+  const h = headerSurface(useTone())
   return (
-    <div className="bg-white border-b border-gray-100 flex-shrink-0">
-      <StatusBar/>
-      <div className="flex items-center gap-3 px-5 py-3">
-        {onBack && (
-          <button onClick={onBack} aria-label="Back" className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 active:scale-95 transition-all flex-shrink-0">
-            <ChevronLeft size={18} className="text-gray-700"/>
-          </button>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="font-bold text-gray-900 truncate">{title}</div>
-          {(subtitle || step) && (
-            <div className="text-xs text-gray-400 truncate">{step && total ? `Step ${step} of ${total}` : ''}{step && subtitle ? ' · ' : ''}{subtitle}</div>
+    <div className="flex-shrink-0">
+      <div className={h.bg}>
+        <StatusBar light={h.dark}/>
+        <div className="flex items-center gap-3 px-4 pt-1 pb-3">
+          {onBack && (
+            <button onClick={onBack} aria-label="Back" className={`size-touch flex items-center justify-center rounded-full active:scale-95 transition-all flex-shrink-0 ${h.btn}`}>
+              <ChevronLeft size={22}/>
+            </button>
           )}
+          <div className="flex-1 min-w-0">
+            <div className={`display text-[20px] leading-tight truncate ${h.text}`}>{title}</div>
+            {(subtitle || step) && (
+              <div className={`text-small font-medium truncate mt-0.5 ${h.sub}`}>
+                {step && total ? `Step ${step} of ${total}` : ''}{step && subtitle ? ' · ' : ''}{subtitle}
+              </div>
+            )}
+          </div>
+          {right}
         </div>
-        {right}
-        {step && total && !right && <StepDots step={step} total={total}/>}
       </div>
-      {step && total && (
-        <div className="h-1 bg-gray-100">
-          <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: `${(step / total) * 100}%` }}/>
-        </div>
-      )}
+      {step && total ? (
+        <div className="bg-surface px-screen py-3 border-b border-divider"><StepProgress step={step} total={total}/></div>
+      ) : !h.dark && <div className="border-b border-divider"/>}
     </div>
   )
 }
 
-export function StepDots({ step, total }: { step: number; total: number }) {
+/** Large-title header for tab screens. */
+export function ScreenHeader({ title, subtitle, right, children }: { title: string; subtitle?: string; right?: ReactNode; children?: ReactNode }) {
+  const h = headerSurface(useTone())
   return (
-    <div className="flex gap-1">
+    <div className={`flex-shrink-0 ${h.bg} ${h.dark ? '' : 'border-b border-divider'}`}>
+      <StatusBar light={h.dark}/>
+      <div className="flex items-end justify-between gap-3 px-screen pt-2 pb-4">
+        <div className="min-w-0">
+          <h1 className={`display text-title ${h.text}`}>{title}</h1>
+          {subtitle && <div className={`text-ui font-medium mt-1 ${h.sub}`}>{subtitle}</div>}
+        </div>
+        {right}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+/** Thin segmented progress: brand = done, line = pending. */
+export function StepProgress({ step, total }: { step: number; total: number }) {
+  return (
+    <div className="flex gap-1.5" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={step}>
       {Array.from({ length: total }, (_, i) => (
-        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i < step ? 'bg-emerald-500' : 'bg-gray-200'} ${i === step - 1 ? 'w-5' : 'w-1.5'}`}/>
+        <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${i < step ? 'bg-brand' : 'bg-line'}`}/>
       ))}
     </div>
   )
 }
 
+/** @deprecated kept for existing callers — renders the segmented progress. */
+export function StepDots({ step, total }: { step: number; total: number }) {
+  return <div className="w-24"><StepProgress step={step} total={total}/></div>
+}
+
 export function BottomBar({ children }: { children: ReactNode }) {
-  return <div className="px-5 pb-7 pt-3 border-t border-gray-100 bg-white flex-shrink-0">{children}</div>
+  return <div className="px-screen pb-7 pt-3 border-t border-divider bg-surface flex-shrink-0">{children}</div>
+}
+
+/** Brand mark: marigold rounded square with a lowercase "d", optionally followed by the wordmark. */
+export function Logo({ size = 44, wordmark = false, onDark = false }: { size?: number; wordmark?: boolean; onDark?: boolean }) {
+  return (
+    <div className="inline-flex items-center gap-2.5">
+      <div className="bg-accent text-ink flex items-center justify-center flex-shrink-0" style={{ width: size, height: size, borderRadius: size * 0.3 }}>
+        <span className="display leading-none" style={{ fontSize: size * 0.62, marginTop: -size * 0.06 }}>d</span>
+      </div>
+      {wordmark && <span className={`display leading-none ${onDark ? 'text-white' : 'text-ink'}`} style={{ fontSize: size * 0.6 }}>Doaura</span>}
+    </div>
+  )
+}
+
+/** Rounded-square icon holder: mint tint with a brand icon. */
+export function IconTile({ children, size = 48, tone = 'mint', className = '' }: { children: ReactNode; size?: number; tone?: 'mint' | 'surface' | 'warn' | 'danger' | 'onDark'; className?: string }) {
+  const t = { mint: 'bg-mint text-brand', surface: 'bg-surface text-brand border border-line', warn: 'bg-warn text-warn-ink', danger: 'bg-danger-tint text-danger', onDark: 'bg-white/15 text-white' }[tone]
+  return (
+    <span className={`inline-flex items-center justify-center flex-shrink-0 ${t} ${className}`} style={{ width: size, height: size, borderRadius: size >= 52 ? 18 : size >= 44 ? 14 : 12 }}>
+      {children}
+    </span>
+  )
+}
+
+/** Fully rounded selectable pill; selected = mint + 2px brand border + check. */
+export function Chip({ selected, onClick, children, className = '' }: { selected: boolean; onClick?: () => void; children: ReactNode; className?: string }) {
+  return (
+    <button type="button" onClick={onClick} aria-pressed={selected}
+      className={`inline-flex items-center gap-1.5 min-h-touch px-4 rounded-full text-ui font-bold border-2 transition-all active:scale-[0.97] ${
+        selected ? 'bg-mint border-brand text-brand' : 'bg-surface border-line text-label'
+      } ${className}`}>
+      {selected && <CheckIcon size={15}/>}
+      {children}
+    </button>
+  )
 }
 
 // ------------------------------------------------------------------
 // Buttons & inputs
 // ------------------------------------------------------------------
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'destructive' | 'dark' | 'soft'
+// primary = ink; accent = marigold (on brand/ink backgrounds); secondary = white + 1px border; danger/destructive = red text.
+type Variant = 'primary' | 'accent' | 'secondary' | 'ghost' | 'danger' | 'destructive' | 'dark' | 'soft' | 'onDark'
 
 export function Button({ children, onClick, variant = 'primary', disabled, loading, className = '', size = 'lg', type = 'button' }: {
   children: ReactNode
@@ -92,15 +169,17 @@ export function Button({ children, onClick, variant = 'primary', disabled, loadi
   type?: 'button' | 'submit'
 }) {
   const v = {
-    primary:   'bg-emerald-500 text-white shadow-lg shadow-emerald-200/70',
-    secondary: 'bg-white text-gray-700 border-2 border-gray-200',
-    ghost:     'bg-transparent text-gray-500',
-    danger:    'bg-red-50 text-red-600 border border-red-100',
-    destructive: 'bg-red-500 text-white shadow-lg shadow-red-200/60',
-    dark:      'bg-gray-900 text-white',
-    soft:      'bg-emerald-50 text-emerald-700',
+    primary:     'bg-ink text-white',
+    accent:      'bg-accent text-ink',
+    secondary:   'bg-surface text-ink border border-line',
+    ghost:       'bg-transparent text-muted',
+    danger:      'bg-surface text-danger border border-line',
+    destructive: 'bg-surface text-danger border border-danger',
+    dark:        'bg-ink text-white',
+    soft:        'bg-mint text-brand',
+    onDark:      'bg-white/15 text-white',
   }[variant]
-  const s = { sm: 'py-2 px-3 text-xs rounded-xl', md: 'py-3 px-4 text-sm rounded-xl', lg: 'py-4 px-5 text-base rounded-2xl' }[size]
+  const s = { sm: 'min-h-touch px-3.5 text-ui rounded-tile', md: 'h-12 px-4 text-ui rounded-btn', lg: 'h-btn px-5 text-body rounded-btn' }[size]
   return (
     <button
       type={type}
@@ -130,9 +209,9 @@ export function Field({ label, value, onChange, placeholder, type = 'text', erro
   const isPw = type === 'password'
   return (
     <div>
-      <label className="block text-[11px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">{label}</label>
-      <div className={`flex items-center bg-gray-50 border rounded-xl transition-all focus-within:bg-white ${error ? 'border-red-300 focus-within:border-red-400' : 'border-gray-200 focus-within:border-emerald-400'}`}>
-        {prefix && <span className="pl-4 pr-1 text-sm font-semibold text-gray-500">{prefix}</span>}
+      <label className="block text-ui font-bold text-label mb-1.5">{label}</label>
+      <div className={`flex items-center h-field bg-surface border rounded-input transition-all ${error ? 'border-danger ring-1 ring-danger' : 'border-line focus-within:border-brand focus-within:ring-1 focus-within:ring-brand'}`}>
+        {prefix && <span className="pl-4 pr-1 text-body font-bold text-label">{prefix}</span>}
         <input
           type={isPw && show ? 'text' : type}
           value={value}
@@ -140,15 +219,15 @@ export function Field({ label, value, onChange, placeholder, type = 'text', erro
           inputMode={inputMode}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className="flex-1 min-w-0 bg-transparent px-4 py-3.5 text-sm text-gray-900 placeholder-gray-400 outline-none"
+          className="flex-1 min-w-0 h-full bg-transparent px-4 text-body text-ink placeholder-subtle outline-none"
         />
         {isPw && (
-          <button type="button" onClick={() => setShow(s => !s)} className="pr-4 text-xs font-bold text-emerald-600">
+          <button type="button" onClick={() => setShow(s => !s)} className="h-full px-4 text-ui font-bold text-brand">
             {show ? 'Hide' : 'Show'}
           </button>
         )}
       </div>
-      {error ? <p className="text-[11px] text-red-500 mt-1.5 font-medium">{error}</p> : hint ? <p className="text-[11px] text-gray-400 mt-1.5">{hint}</p> : null}
+      {error ? <p className="text-small text-danger mt-1.5 font-bold">{error}</p> : hint ? <p className="text-small text-muted mt-1.5">{hint}</p> : null}
     </div>
   )
 }
@@ -161,16 +240,16 @@ export function Toggle({ on, onChange, size = 'md' }: { on: boolean; onChange: (
       role="switch"
       aria-checked={on}
       onClick={() => onChange(!on)}
-      className={`relative rounded-full transition-colors duration-300 flex-shrink-0 ${on ? 'bg-emerald-500' : 'bg-gray-300'} ${big ? 'w-16 h-9' : 'w-11 h-6'}`}
+      className={`relative rounded-full transition-colors duration-300 flex-shrink-0 ${on ? 'bg-brand' : 'bg-line'} ${big ? 'w-16 h-9' : 'w-11 h-6'}`}
     >
-      <span className={`absolute top-1 rounded-full bg-white shadow transition-all duration-300 ${big ? 'w-7 h-7' : 'w-4 h-4'} ${on ? (big ? 'left-8' : 'left-6') : 'left-1'}`}/>
+      <span className={`absolute top-1 rounded-full bg-surface shadow transition-all duration-300 ${big ? 'w-7 h-7' : 'w-4 h-4'} ${on ? (big ? 'left-8' : 'left-6') : 'left-1'}`}/>
     </button>
   )
 }
 
 export function Check({ checked, round = false }: { checked: boolean; round?: boolean }) {
   return (
-    <span className={`w-5 h-5 flex items-center justify-center border-2 flex-shrink-0 transition-all ${round ? 'rounded-full' : 'rounded-md'} ${checked ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 bg-white'}`}>
+    <span className={`w-5 h-5 flex items-center justify-center border-2 flex-shrink-0 transition-all ${round ? 'rounded-full' : 'rounded-md'} ${checked ? 'bg-brand border-brand' : 'border-line bg-surface'}`}>
       {checked && <CheckIcon size={12} className="text-white"/>}
     </span>
   )
@@ -178,8 +257,8 @@ export function Check({ checked, round = false }: { checked: boolean; round?: bo
 
 export function Radio({ checked }: { checked: boolean }) {
   return (
-    <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${checked ? 'border-emerald-500' : 'border-gray-300'}`}>
-      {checked && <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full"/>}
+    <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${checked ? 'border-brand' : 'border-line'}`}>
+      {checked && <span className="w-2.5 h-2.5 bg-brand rounded-full"/>}
     </span>
   )
 }
@@ -193,14 +272,14 @@ export function NumberStepper({ value, onChange, min = 0, max = 99, step = 1, fo
   format?: (v: number) => string
   size?: 'sm' | 'md'
 }) {
-  const btn = size === 'sm' ? 'w-8 h-8 text-base rounded-lg' : 'w-12 h-12 text-xl rounded-xl'
+  const btn = size === 'sm' ? 'size-touch text-lg rounded-tile' : 'size-12 text-xl rounded-tile'
   return (
     <div className="flex items-center gap-2">
       <button type="button" disabled={value <= min} onClick={() => onChange(Math.max(min, value - step))}
-        className={`${btn} bg-white border-2 border-gray-200 flex items-center justify-center font-bold text-gray-700 active:scale-95 transition-all disabled:opacity-30`}>−</button>
-      <div className={`text-center font-extrabold text-gray-900 ${size === 'sm' ? 'min-w-10 text-sm' : 'flex-1 text-2xl'}`}>{format(value)}</div>
+        className={`${btn} bg-surface border border-line flex items-center justify-center font-bold text-ink active:scale-95 transition-all disabled:opacity-30`}>−</button>
+      <div className={`text-center display text-ink ${size === 'sm' ? 'min-w-10 text-body' : 'flex-1 text-[26px]'}`}>{format(value)}</div>
       <button type="button" disabled={value >= max} onClick={() => onChange(Math.min(max, value + step))}
-        className={`${btn} bg-white border-2 border-gray-200 flex items-center justify-center font-bold text-gray-700 active:scale-95 transition-all disabled:opacity-30`}>+</button>
+        className={`${btn} bg-surface border border-line flex items-center justify-center font-bold text-ink active:scale-95 transition-all disabled:opacity-30`}>+</button>
     </div>
   )
 }
@@ -238,8 +317,8 @@ export function OtpInput({ value, onChange, length = 6, error }: { value: string
             const p = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length)
             if (p) { e.preventDefault(); onChange(p); refs.current[Math.min(p.length, length - 1)]?.focus() }
           }}
-          className={`w-11 h-14 text-center text-xl font-bold rounded-xl border-2 outline-none transition-all ${
-            error ? 'border-red-300 bg-red-50 text-red-600' : d ? 'border-emerald-400 bg-emerald-50 text-gray-900' : 'border-gray-200 bg-gray-50 text-gray-900 focus:border-emerald-400 focus:bg-white'
+          className={`w-12 h-14 text-center display text-[22px] rounded-input border outline-none transition-all ${
+            error ? 'border-danger ring-1 ring-danger bg-danger-tint text-danger' : d ? 'border-brand ring-1 ring-brand bg-mint text-ink' : 'border-line bg-surface text-ink focus:border-brand focus:ring-1 focus:ring-brand'
           }`}
         />
       ))}
@@ -253,10 +332,10 @@ export function OtpInput({ value, onChange, length = 6, error }: { value: string
 
 export function Avatar({ name, size = 40, ring = false, tone = 'emerald' }: { name: string; size?: number; ring?: boolean; tone?: 'emerald' | 'blue' | 'amber' }) {
   const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
-  const t = { emerald: 'bg-emerald-100 text-emerald-700', blue: 'bg-blue-100 text-blue-700', amber: 'bg-amber-100 text-amber-700' }[tone]
+  const t = { emerald: 'bg-mint text-brand', blue: 'bg-mint text-brand', amber: 'bg-warn text-warn-ink' }[tone]
   return (
     <div
-      className={`rounded-full flex items-center justify-center flex-shrink-0 ${t} ${ring ? 'ring-2 ring-white shadow-md' : ''}`}
+      className={`rounded-full flex items-center justify-center flex-shrink-0 ${t} ${ring ? 'ring-2 ring-white' : ''}`}
       style={{ width: size, height: size }}
     >
       <span className="font-bold" style={{ fontSize: size * 0.36 }}>{initials}</span>
@@ -268,16 +347,16 @@ export type BadgeColor = 'green' | 'amber' | 'red' | 'blue' | 'gray' | 'white' |
 
 export function Badge({ label, color, dot = false }: { label: string; color: BadgeColor; dot?: boolean }) {
   const cls = {
-    green:  'bg-emerald-100 text-emerald-700',
-    amber:  'bg-amber-100 text-amber-700',
-    red:    'bg-red-100 text-red-600',
-    blue:   'bg-blue-100 text-blue-700',
-    gray:   'bg-gray-100 text-gray-600',
-    white:  'bg-white/20 text-white',
-    purple: 'bg-violet-100 text-violet-700',
+    green:  'bg-mint text-brand',
+    amber:  'bg-warn text-warn-ink',
+    red:    'bg-danger-tint text-danger',
+    blue:   'bg-mint text-brand',
+    gray:   'bg-divider text-muted',
+    white:  'bg-accent text-ink',
+    purple: 'bg-mint text-brand',
   }[color]
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide whitespace-nowrap ${cls}`}>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-small font-bold leading-none whitespace-nowrap ${cls}`}>
       {dot && <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse"/>}
       {label}
     </span>
@@ -287,9 +366,9 @@ export function Badge({ label, color, dot = false }: { label: string; color: Bad
 export function Rating({ value, count }: { value: number; count?: number }) {
   return (
     <span className="inline-flex items-center gap-0.5">
-      <StarFilled size={12} className="text-amber-400"/>
-      <span className="text-xs font-bold text-gray-700">{value.toFixed(1)}</span>
-      {count !== undefined && <span className="text-xs text-gray-400 ml-0.5">({count})</span>}
+      <StarFilled size={12} className="text-accent"/>
+      <span className="text-small font-bold text-ink">{value.toFixed(1)}</span>
+      {count !== undefined && <span className="text-small text-muted ml-0.5">({count})</span>}
     </span>
   )
 }
@@ -301,21 +380,21 @@ export function StarInput({ value, onChange, size = 38 }: { value: number; onCha
       <div className="flex items-center justify-center gap-2">
         {[1, 2, 3, 4, 5].map(i => (
           <button key={i} type="button" onClick={() => onChange(i)} className="active:scale-90 transition-transform">
-            <StarFilled size={size} className={`transition-colors ${i <= value ? 'text-amber-400' : 'text-gray-200'}`}/>
+            <StarFilled size={size} className={`transition-colors ${i <= value ? 'text-accent' : 'text-line'}`}/>
           </button>
         ))}
       </div>
-      <div className="h-5 mt-2 text-sm font-bold text-amber-500">{labels[value]}</div>
+      <div className="h-5 mt-2 text-ui font-bold text-ink">{labels[value]}</div>
     </div>
   )
 }
 
-export function EmptyState({ emoji, title, desc, action }: { emoji: string; title: string; desc: string; action?: ReactNode }) {
+export function EmptyState({ emoji, title, desc, action }: { emoji: ReactNode; title: string; desc: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center text-center py-12 px-6 anim-fade-in">
-      <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-4xl mb-4">{emoji}</div>
-      <div className="font-bold text-gray-800 mb-1">{title}</div>
-      <div className="text-sm text-gray-400 max-w-[260px] mb-5">{desc}</div>
+      <IconTile size={64} className="mb-4">{emoji}</IconTile>
+      <div className="display text-[20px] text-ink mb-1">{title}</div>
+      <div className="text-body text-muted max-w-[270px] mb-5">{desc}</div>
       {action}
     </div>
   )
@@ -324,27 +403,27 @@ export function EmptyState({ emoji, title, desc, action }: { emoji: string; titl
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <div className="font-extrabold text-gray-900">{children}</div>
+      <h2 className="display text-[20px] text-ink">{children}</h2>
       {action}
     </div>
   )
 }
 
 export function Label({ children }: { children: ReactNode }) {
-  return <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2">{children}</div>
+  return <div className="text-ui font-bold text-label mb-2">{children}</div>
 }
 
 export function Row({ label, value, strong }: { label: string; value: ReactNode; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between py-1.5">
-      <span className={`text-sm ${strong ? 'font-bold text-gray-800' : 'text-gray-500'}`}>{label}</span>
-      <span className={`text-sm text-right ${strong ? 'font-extrabold text-emerald-600 text-base' : 'font-semibold text-gray-900'}`}>{value}</span>
+      <span className={`text-body ${strong ? 'font-bold text-ink' : 'text-muted'}`}>{label}</span>
+      <span className={`text-right ${strong ? 'display text-[22px] text-ink' : 'text-body font-bold text-ink'}`}>{value}</span>
     </div>
   )
 }
 
 /** Shrinking bar that fires onEnd after `seconds`. Remount (change `key`) to restart. */
-export function CountdownBar({ seconds, onEnd, color = 'bg-emerald-500' }: { seconds: number; onEnd?: () => void; color?: string }) {
+export function CountdownBar({ seconds, onEnd, color = 'bg-brand' }: { seconds: number; onEnd?: () => void; color?: string }) {
   const endRef = useRef(onEnd)
   endRef.current = onEnd
   useEffect(() => {
@@ -352,7 +431,7 @@ export function CountdownBar({ seconds, onEnd, color = 'bg-emerald-500' }: { sec
     return () => clearTimeout(t)
   }, [seconds])
   return (
-    <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+    <div className="h-1.5 bg-line rounded-full overflow-hidden">
       <div className={`h-full ${color} anim-shrink`} style={{ animationDuration: `${seconds}s` }}/>
     </div>
   )
@@ -442,12 +521,17 @@ export function loadGoogleMaps(): Promise<GoogleNS> {
 }
 
 // Quiet, brand-friendly style: hide business POIs and transit clutter.
-const GOOGLE_STYLE = [
+/** Read a colour token from theme.css at runtime (for APIs that need literal colours). */
+export function token(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(`--color-${name}`).trim()
+}
+
+const googleStyle = () => [
   { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#d7f0dc' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9e4f5' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: token('placeholder') }] },
+  { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: token('canvas') }] },
 ]
 
 function GoogleLayer({ center, zoom, interactive, onCenterChange, onDragState, onFail }: {
@@ -472,7 +556,7 @@ function GoogleLayer({ center, zoom, interactive, onCenterChange, onDragState, o
       if (cancelled || !el.current) return
       const m = new g.maps.Map(el.current, {
         center, zoom, disableDefaultUI: true, clickableIcons: false, keyboardShortcuts: false,
-        gestureHandling: interactive ? 'greedy' : 'none', styles: GOOGLE_STYLE,
+        gestureHandling: interactive ? 'greedy' : 'none', styles: googleStyle(),
       })
       map.current = m
       // Only report centre changes the user makes, not our own setCenter() calls.
@@ -567,7 +651,7 @@ export function MapView({ height, pins = [], route, className = '', children, ce
     <div
       ref={ref}
       className={`relative overflow-hidden select-none ${interactive ? 'cursor-grab active:cursor-grabbing touch-none' : ''} ${className}`}
-      style={{ height, background: '#EEF0EC' }}
+      style={{ height, background: 'var(--color-divider)' }}
       onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
     >
       {google ? (
@@ -586,8 +670,8 @@ export function MapView({ height, pins = [], route, className = '', children, ce
             const d = `M ${route[0].x} ${route[0].y} Q ${(route[0].x + route[1].x) / 2} ${Math.min(route[0].y, route[1].y) - 12} ${route[1].x} ${route[1].y}`
             return (
               <>
-                <path d={d} fill="none" stroke="#FFFFFF" strokeWidth="9" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
-                <path d={d} fill="none" stroke="#2563EB" strokeWidth="5" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
+                <path d={d} fill="none" stroke="var(--color-surface)" strokeWidth="9" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
+                <path d={d} fill="none" stroke="var(--color-brand)" strokeWidth="5" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
               </>
             )
           })()}
@@ -595,7 +679,7 @@ export function MapView({ height, pins = [], route, className = '', children, ce
       )}
       {pins.map(p => <Pin key={p.id} pin={p}/>)}
       {children}
-      {!google && <div className="absolute bottom-1 right-1.5 text-[8px] text-gray-500/80 pointer-events-none">© OpenStreetMap contributors</div>}
+      {!google && <div className="absolute bottom-1 right-1.5 text-[8px] text-muted/80 pointer-events-none">© OpenStreetMap contributors</div>}
     </div>
   )
 }
@@ -606,8 +690,8 @@ function Pin({ pin }: { pin: MapPin }) {
     return (
       <div className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-1000" style={style}>
         <div className="relative w-5 h-5">
-          <span className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-60"/>
-          <span className="absolute inset-0 rounded-full bg-blue-500 border-[3px] border-white shadow-lg"/>
+          <span className="absolute inset-0 rounded-full bg-brand animate-ping opacity-60"/>
+          <span className="absolute inset-0 rounded-full bg-brand border-[3px] border-white shadow-lg"/>
         </div>
       </div>
     )
@@ -616,8 +700,8 @@ function Pin({ pin }: { pin: MapPin }) {
     return (
       <div className="absolute -translate-x-1/2 -translate-y-full anim-drop" style={style}>
         <div className="flex flex-col items-center">
-          {pin.label && <div className="mb-1 bg-gray-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow whitespace-nowrap">{pin.label}</div>}
-          <div className={`w-9 h-9 rounded-full rounded-br-none rotate-45 flex items-center justify-center shadow-lg ${pin.kind === 'home' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+          {pin.label && <div className="mb-1 bg-ink text-white text-small font-bold px-2 py-1 rounded-lg whitespace-nowrap">{pin.label}</div>}
+          <div className={`w-9 h-9 rounded-full rounded-br-none rotate-45 flex items-center justify-center shadow-lg ${pin.kind === 'home' ? 'bg-brand' : 'bg-danger'}`}>
             <span className="-rotate-45"><MapPinIcon size={15} className="text-white"/></span>
           </div>
         </div>
@@ -633,12 +717,12 @@ function Pin({ pin }: { pin: MapPin }) {
     >
       <div className="flex flex-col items-center">
         <div className={`rounded-full border-2 flex items-center justify-center shadow-md font-bold transition-all ${
-          pin.active ? 'w-11 h-11 bg-emerald-500 border-white text-white text-xs scale-110' : 'w-9 h-9 bg-white border-emerald-400 text-emerald-600 text-[10px]'
+          pin.active ? 'w-11 h-11 bg-brand border-white text-white text-xs scale-110' : 'w-9 h-9 bg-surface border-brand text-brand text-[10px]'
         }`}>
           {pin.label}
         </div>
         {pin.sub && (
-          <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 shadow whitespace-nowrap ${pin.active ? 'bg-gray-900 text-white' : 'bg-emerald-500 text-white'}`}>
+          <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 shadow whitespace-nowrap ${pin.active ? 'bg-ink text-white' : 'bg-brand text-white'}`}>
             {pin.sub}
           </div>
         )}
@@ -661,17 +745,17 @@ export function Sheet({ open, onClose, children, title, dismissible = true }: {
   if (!open) return null
   return (
     <div className="absolute inset-0 z-40 flex items-end">
-      <div className="absolute inset-0 bg-black/45 anim-fade-in" onClick={dismissible ? onClose : undefined}/>
-      <div className="relative w-full bg-white rounded-t-3xl anim-slide-up-sheet max-h-[90%] flex flex-col">
+      <div className="absolute inset-0 bg-ink/45 anim-fade-in" onClick={dismissible ? onClose : undefined}/>
+      <div className="relative w-full bg-surface rounded-t-sheet anim-slide-up-sheet max-h-[90%] flex flex-col">
         <div className="pt-3 pb-1 flex-shrink-0">
-          <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto"/>
+          <div className="w-10 h-1 bg-line rounded-full mx-auto"/>
         </div>
         {title && (
           <div className="flex items-center justify-between px-5 pt-2 pb-3 flex-shrink-0">
-            <div className="font-extrabold text-gray-900 text-lg">{title}</div>
+            <div className="display text-ink text-heading">{title}</div>
             {dismissible && (
-              <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                <XIcon size={16} className="text-gray-500"/>
+              <button onClick={onClose} aria-label="Close" className="size-touch rounded-full bg-divider flex items-center justify-center">
+                <XIcon size={20} className="text-ink"/>
               </button>
             )}
           </div>
@@ -706,19 +790,19 @@ export function useToast() {
 
 export function ToastView({ toast, onClose }: { toast: ToastMsg | null; onClose: () => void }) {
   if (!toast) return null
-  const tone = toast.tone === 'error' ? 'bg-red-600' : toast.tone === 'success' ? 'bg-emerald-600' : 'bg-gray-900'
+  const tone = toast.tone === 'error' ? 'bg-danger' : toast.tone === 'success' ? 'bg-brand' : 'bg-ink'
   return (
     <div key={toast.id} className="absolute top-10 left-3 right-3 z-50 anim-toast">
-      <div className={`${tone} text-white rounded-2xl shadow-2xl px-4 py-3 flex items-center gap-3`}>
-        {toast.emoji && <span className="text-xl">{toast.emoji}</span>}
+      <div className={`${tone} text-white rounded-card shadow-lg px-4 py-3 flex items-center gap-3`}>
+        {toast.emoji && <span className="text-xl"><Glyph e={toast.emoji}/></span>}
         <div className="flex-1 min-w-0" onClick={onClose}>
-          <div className="text-sm font-bold">{toast.title}</div>
-          {toast.desc && <div className="text-xs text-white/75 truncate">{toast.desc}</div>}
+          <div className="text-body font-bold">{toast.title}</div>
+          {toast.desc && <div className="text-small text-white/75 truncate">{toast.desc}</div>}
         </div>
         {toast.action && (
           <button
             onClick={() => { toast.action!.onClick(); onClose() }}
-            className="px-3 py-1.5 bg-white text-gray-900 text-xs font-bold rounded-lg flex-shrink-0"
+            className="min-h-touch px-3.5 bg-accent text-ink text-ui font-bold rounded-tile flex-shrink-0"
           >
             {toast.action.label}
           </button>
@@ -740,10 +824,10 @@ export function Confirm({ open, title, desc, confirmLabel, danger, onConfirm, on
   if (!open) return null
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center px-8">
-      <div className="absolute inset-0 bg-black/45 anim-fade-in" onClick={onCancel}/>
-      <div className="relative w-full bg-white rounded-3xl p-6 anim-bounce-in text-center">
-        <div className="font-extrabold text-gray-900 text-lg mb-1">{title}</div>
-        <div className="text-sm text-gray-500 mb-5">{desc}</div>
+      <div className="absolute inset-0 bg-ink/45 anim-fade-in" onClick={onCancel}/>
+      <div className="relative w-full bg-surface rounded-sheet p-6 anim-bounce-in text-center">
+        <div className="display text-ink text-heading mb-1">{title}</div>
+        <div className="text-body text-muted mb-5">{desc}</div>
         <div className="flex gap-2">
           <Button variant="secondary" size="md" className="flex-1" onClick={onCancel}>Not now</Button>
           <Button variant={danger ? 'destructive' : 'primary'} size="md" className="flex-1" onClick={onConfirm}>{confirmLabel}</Button>
@@ -766,20 +850,20 @@ export function PhotoPicker({ photos, onChange, max = 6, label = 'Add' }: { phot
         <button
           type="button"
           onClick={() => input.current?.click()}
-          className="w-20 h-20 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 active:scale-95 transition-all"
+          className="w-20 h-20 bg-surface rounded-tile border-2 border-dashed border-line flex flex-col items-center justify-center text-brand active:scale-95 transition-all"
         >
-          <span className="text-xl">📷</span>
-          <span className="text-[10px] font-semibold mt-0.5">{label}</span>
+          <CameraIcon size={22}/>
+          <span className="text-small font-bold mt-1">{label}</span>
         </button>
       )}
       {photos.map((p, i) => (
-        <div key={p + i} className="relative w-20 h-20 rounded-xl overflow-hidden bg-emerald-50 flex items-center justify-center anim-bounce-in">
-          {isUrl(p) ? <img src={p} alt="" className="w-full h-full object-cover"/> : <span className="text-3xl">{p}</span>}
+        <div key={p + i} className="relative w-20 h-20 rounded-tile overflow-hidden bg-placeholder flex items-center justify-center anim-bounce-in">
+          {isUrl(p) ? <img src={p} alt="" className="w-full h-full object-cover"/> : <Glyph e={p} size={26} className="text-brand/70"/>}
           <button
             type="button"
             onClick={() => onChange(photos.filter((_, j) => j !== i))}
             aria-label="Remove photo"
-            className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center"
+            className="absolute top-1 right-1 w-5 h-5 bg-ink/60 rounded-full flex items-center justify-center"
           >
             <XIcon size={11} className="text-white"/>
           </button>
@@ -804,58 +888,43 @@ export function PhotoPicker({ photos, onChange, max = 6, label = 'Add' }: { phot
 export function PhotoThumb({ src, size = 64 }: { src: string; size?: number }) {
   const isUrl = src.startsWith('blob:') || src.startsWith('data:')
   return (
-    <div className="rounded-xl overflow-hidden bg-emerald-50 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}>
-      {isUrl ? <img src={src} alt="" className="w-full h-full object-cover"/> : <span style={{ fontSize: size * 0.45 }}>{src}</span>}
+    <div className="rounded-tile overflow-hidden bg-placeholder flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}>
+      {isUrl ? <img src={src} alt="" className="w-full h-full object-cover"/> : <Glyph e={src} size={Math.round(size * 0.42)} className="text-brand/70"/>}
     </div>
   )
 }
 
 // ------------------------------------------------------------------
-// Floating bottom navigation (icon-only pill; active tab rises into a notch)
+// Bottom tab bar: icon + label, active = brand
 // ------------------------------------------------------------------
 
 export interface NavItem {
   id: string
   label: string
-  Icon: (p: { size?: number; className?: string }) => ReactNode
+  Icon: (p: { size?: number; className?: string; strokeWidth?: number }) => ReactNode
   badge?: number
 }
 
-export function FloatingNav({ items, active, onSelect }: { items: NavItem[]; active: string | null; onSelect: (id: string) => void }) {
-  const idx = items.findIndex(i => i.id === active)
-  const current = items[idx]
-  const left = `${((idx + 0.5) / items.length) * 100}%`
+export function TabBar({ items, active, onSelect }: { items: NavItem[]; active: string | null; onSelect: (id: string) => void }) {
   return (
-    <div className="flex-shrink-0 bg-gray-50 px-4 pt-7 pb-4">
-      <nav className="relative h-16 bg-white rounded-[28px] shadow-[0_8px_30px_rgba(15,23,42,0.08)] flex items-stretch">
-        {current && (
-          <>
-            {/* Raised indicator; the thick ring in the page colour reads as a notch in the bar */}
-            <div
-              className="absolute -top-7 w-[68px] h-[68px] -translate-x-1/2 rounded-full bg-gray-50 flex items-center justify-center transition-[left] duration-300 ease-out pointer-events-none"
-              style={{ left }}
-            >
-              <span key={current.id} className="w-14 h-14 rounded-full bg-emerald-600 shadow-lg shadow-emerald-600/30 flex items-center justify-center anim-bounce-in">
-                <current.Icon size={24} className="text-white"/>
-              </span>
-            </div>
-          </>
-        )}
-        {items.map(({ id, label, Icon, badge }) => {
-          const on = id === active
-          return (
-            <button key={id} onClick={() => onSelect(id)} aria-label={label} aria-current={on ? 'page' : undefined}
-              className="relative flex-1 flex items-center justify-center active:scale-90 transition-transform">
-              <span className={`transition-opacity duration-200 ${on ? 'opacity-0' : 'opacity-100'}`}>
-                <Icon size={22} className="text-gray-400"/>
-              </span>
-              {!!badge && !on && (
-                <span className="absolute top-3 left-1/2 ml-1.5 min-w-4 h-4 px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white">{badge}</span>
-              )}
-            </button>
-          )
-        })}
-      </nav>
-    </div>
+    <nav className="flex-shrink-0 bg-surface border-t border-line flex items-stretch px-2 pb-2">
+      {items.map(({ id, label, Icon, badge }) => {
+        const on = id === active
+        return (
+          <button key={id} onClick={() => onSelect(id)} aria-current={on ? 'page' : undefined}
+            className="relative flex-1 min-h-[60px] flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform">
+            <span className={`h-1 w-8 rounded-full absolute top-0 transition-colors ${on ? 'bg-brand' : 'bg-transparent'}`}/>
+            <Icon size={24} strokeWidth={on ? 2.25 : 2} className={on ? 'text-brand' : 'text-subtle'}/>
+            <span className={`text-tab font-bold ${on ? 'text-brand' : 'text-subtle'}`}>{label}</span>
+            {!!badge && (
+              <span className="absolute top-1.5 left-1/2 ml-2 min-w-[18px] h-[18px] px-1 bg-accent text-ink text-tab font-bold rounded-full flex items-center justify-center">{badge}</span>
+            )}
+          </button>
+        )
+      })}
+    </nav>
   )
 }
+
+/** @deprecated old name, kept so existing imports keep working. */
+export const FloatingNav = TabBar
