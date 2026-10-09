@@ -33,7 +33,7 @@ export function HirerJobsScreen({ active, history, onOpen, onCreate }: {
           list.map(hj => <HirerJobCard key={hj.id} hj={hj} onOpen={() => onOpen(hj)}/>)
         ) : (
           list.map(hj => (
-            <div key={hj.id} className="bg-surface rounded-card p-4 border border-divider flex items-center gap-3">
+            <div key={hj.id} className="bg-surface rounded-card p-4 border border-line flex items-center gap-3">
               <div className="w-12 h-12 bg-mint rounded-tile flex items-center justify-center text-2xl text-brand"><Glyph e={jobEmoji(hj.job)}/></div>
               <div className="flex-1 min-w-0">
                 <div className="font-bold text-body text-ink truncate">{jobTitle(hj.job)}</div>
@@ -69,7 +69,7 @@ export function ActivityScreen({ items, onBack }: { items: ActivityItem[]; onBac
               {items.map(a => (
                 <div key={a.id} className="relative flex items-start gap-3 anim-slide-up">
                   <span className="relative z-10 w-10 h-10 bg-surface rounded-full border-2 border-divider flex items-center justify-center text-lg flex-shrink-0"><Glyph e={a.emoji}/></span>
-                  <div className="flex-1 bg-surface rounded-card p-3 border border-divider">
+                  <div className="flex-1 bg-surface rounded-card p-3 border border-line">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-bold text-body text-ink">{a.title}</span>
                       <span className="text-tab text-subtle flex-shrink-0">{a.time}</span>

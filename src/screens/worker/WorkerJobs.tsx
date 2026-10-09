@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Avatar, Badge, Button, CountdownBar, EmptyState, Label, MapView, NumberStepper, PhotoThumb, Rating, ScreenHeader, SegmentTabs, StatusBar } from '../../components/ui'
+import { Avatar, Badge, Button, Chip, CountdownBar, EmptyState, Label, MapView, NumberStepper, PhotoThumb, Rating, ScreenHeader, SegmentTabs, StatusBar } from '../../components/ui'
 import { ChevronLeft, ClockIcon, MapPinIcon, ToolIcon, AlertCircle, StarFilled, CheckCircle, Glyph } from '../../components/Icons'
 import { findSub, rs } from '../../data/catalog'
 import { jobCategoryName, jobEmoji, jobHours, jobTitle, jobUnitPrice, priceLine, totalFor, unitLabel, WORK_STEPS, stepIndex, type Job } from '../../data/jobs'
@@ -18,7 +18,7 @@ export function BidBadge({ bid }: { bid?: Bid }) {
 export function JobCard({ job, bid, match, onOpen }: { job: Job; bid?: Bid; match?: boolean; onOpen: () => void }) {
   const unit = jobUnitPrice(job)
   return (
-    <button onClick={onOpen} className="w-full bg-surface rounded-card p-4 border border-divider text-left active:scale-[0.98] transition-all anim-slide-up">
+    <button onClick={onOpen} className="w-full bg-surface rounded-card p-4 border border-line text-left active:scale-[0.98] transition-all anim-slide-up">
       <div className="flex items-start gap-3">
         <div className="w-12 h-12 bg-mint rounded-tile flex items-center justify-center text-2xl flex-shrink-0 text-brand"><Glyph e={jobEmoji(job)}/></div>
         <div className="flex-1 min-w-0">
@@ -96,7 +96,7 @@ export function JobsScreen({ feed, bids, active, completed, history, online, ski
             {feed.length > 0 && (
               <div className="flex gap-2 mb-3">
                 {[{ v: false, l: 'All nearby' }, { v: true, l: `My bids (${Object.keys(bids).filter(id => feed.some(j => j.id === id)).length})` }].map(o => (
-                  <button key={o.l} onClick={() => setOnlyBids(o.v)} className={`px-3 py-1.5 rounded-full text-small font-bold ${onlyBids === o.v ? 'bg-ink text-white' : 'bg-surface text-muted border border-line'}`}>{o.l}</button>
+                  <button key={o.l} onClick={() => setOnlyBids(o.v)} className={`min-h-touch px-4 rounded-full text-ui font-bold border-2 ${onlyBids === o.v ? 'bg-mint border-brand text-brand' : 'bg-surface border-line text-label'}`}>{o.l}</button>
                 ))}
               </div>
             )}
@@ -138,7 +138,7 @@ export function JobsScreen({ feed, bids, active, completed, history, online, ski
 
 function CompletedRow({ emoji, title, sub, amount, rating, fresh }: { emoji: string; title: string; sub: string; amount: number; rating: number; fresh?: boolean }) {
   return (
-    <div className={`bg-surface rounded-card p-4 border ${fresh ? 'border-brand' : 'border-divider'} flex items-center gap-3`}>
+    <div className={`bg-surface rounded-card p-4 border ${fresh ? 'border-brand' : 'border-line'} flex items-center gap-3`}>
       <div className="w-12 h-12 bg-mint rounded-tile flex items-center justify-center text-2xl text-brand">{emoji}</div>
       <div className="flex-1 min-w-0">
         <div className="font-bold text-body text-ink truncate">{title}</div>
@@ -158,7 +158,7 @@ function CompletedRow({ emoji, title, sub, amount, rating, fresh }: { emoji: str
 export function ActiveJobCard({ m, onOpen, dark }: { m: MyJob; onOpen: () => void; dark?: boolean }) {
   const idx = stepIndex(m.status)
   return (
-    <button onClick={onOpen} className={`w-full rounded-card p-4 text-left active:scale-[0.98] transition-all ${dark ? 'bg-brand text-white' : 'bg-surface border-2 border-brand shadow-sm'}`}>
+    <button onClick={onOpen} className={`w-full rounded-card p-4 text-left active:scale-[0.98] transition-all ${dark ? 'bg-brand text-white' : 'bg-surface border-2 border-brand'}`}>
       <div className="flex items-center justify-between mb-2">
         <Badge label="Active job" color={dark ? 'white' : 'green'} dot/>
         <span className={`text-small font-bold ${dark ? 'text-white' : 'text-brand'}`}>{WORK_STEPS[idx].label}</span>
@@ -221,7 +221,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
         route={[{ x: 26, y: 62 }, { x: 70, y: 40 }]}
       >
         <div className="absolute top-0 left-0 right-0"><StatusBar/></div>
-        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-md">
+        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 size-touch bg-surface rounded-full flex items-center justify-center shadow-md">
           <ChevronLeft size={18} className="text-label"/>
         </button>
         <div className="absolute bottom-6 left-4 bg-surface rounded-tile px-3 py-1.5 shadow-md flex items-center gap-1.5">
@@ -310,7 +310,7 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
               <div className="flex items-center gap-3 mb-3">
                 <div className="relative w-10 h-10 flex-shrink-0">
                   <span className="radar-ring"/>
-                  <span className="absolute inset-0 rounded-full bg-accent flex items-center justify-center text-white text-lg"><Glyph e="⏳"/></span>
+                  <span className="absolute inset-0 rounded-full bg-accent flex items-center justify-center text-ink text-lg"><Glyph e="⏳"/></span>
                 </div>
                 <div>
                   <div className="font-bold text-warn-ink">Waiting for {job.hirer.name.split(' ')[0]}…</div>
@@ -350,10 +350,9 @@ export function JobDetailScreen({ job, bid, online, verified, taken, onBack, onB
               </div>
               <div className="flex justify-center gap-2 mt-4 flex-wrap">
                 {[offer, round50(offer * 1.05), round50(offer * 1.1), round50(offer * 1.2)].map((v, i) => (
-                  <button key={v} onClick={() => setAmount(v)}
-                    className={`px-3 py-1.5 rounded-tile text-small font-bold transition-all ${amount === v ? 'bg-brand text-white' : 'bg-surface text-muted border border-line'}`}>
+                  <Chip key={v} selected={amount === v} onClick={() => setAmount(v)} className="px-3">
                     {i === 0 ? 'Offer · ' : ''}{rs(v)}
-                  </button>
+                  </Chip>
                 ))}
               </div>
             </div>

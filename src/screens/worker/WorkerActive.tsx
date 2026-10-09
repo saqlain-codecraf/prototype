@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AppHeader, Avatar, Badge, BottomBar, Button, Check, Confirm, Label, MapView, NumberStepper, PhotoPicker, PhotoThumb, Rating, Row, StarInput, StatusBar } from '../../components/ui'
+import { AppHeader, Avatar, Badge, BottomBar, Button, Check, Chip, Confirm, Label, MapView, NumberStepper, PhotoPicker, PhotoThumb, Rating, Row, StarInput, StatusBar } from '../../components/ui'
 import { ChevronLeft, MapPinIcon, MessageIcon, NavigateIcon, PhoneIcon, CheckIcon, ToolIcon, Glyph } from '../../components/Icons'
 import { findSub, rs } from '../../data/catalog'
 import { PAYMENT_METHODS } from '../../data/mock'
@@ -22,7 +22,7 @@ export function AssignedScreen({ m, onView, onMessage }: { m: MyJob; onView: () 
           <span className="radar-ring"/>
           <div className="absolute inset-0 bg-brand rounded-full flex items-center justify-center text-5xl anim-bounce-in"><Glyph e="🎉"/></div>
         </div>
-        <h2 className="text-2xl display text-ink mb-1">Job assigned to you!</h2>
+        <h2 className="display text-[26px] text-ink mb-1">Job assigned to you!</h2>
         <p className="text-muted text-body mb-6">{job.hirer.name} accepted your bid of <b className="text-ink">{rs(m.unit)}{unitLabel(job.payType)}</b></p>
 
         <div className="w-full bg-canvas rounded-card p-4 text-left">
@@ -97,7 +97,7 @@ export function ActiveJobScreen({ m, onBack, onStatus, onFinish, onMessage, onCa
         route={idx < 2 ? [workerPos, { x: 70, y: 40 }] : undefined}
       >
         <div className="absolute top-0 left-0 right-0"><StatusBar/></div>
-        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-md">
+        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 size-touch bg-surface rounded-full flex items-center justify-center shadow-md">
           <ChevronLeft size={18} className="text-label"/>
         </button>
         <a href={mapsUrl} target="_blank" rel="noreferrer" className="absolute top-10 right-4 px-3 h-10 bg-brand text-white rounded-full flex items-center gap-1.5 shadow-md text-small font-bold">
@@ -249,11 +249,11 @@ export function CompletionFlow({ m, onBack, onComplete }: {
         <StatusBar/>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
           <div className="w-24 h-24 bg-brand rounded-full flex items-center justify-center text-5xl mb-5 anim-bounce-in"><Glyph e="💰"/></div>
-          <h2 className="text-2xl display text-ink mb-1">Job completed!</h2>
+          <h2 className="display text-[26px] text-ink mb-1">Job completed!</h2>
           <p className="text-muted text-body mb-6">Great work. Your earnings have been updated.</p>
           <div className="w-full bg-mint rounded-card p-5 text-brand">
             <div className="text-body text-brand font-bold">Added to your earnings</div>
-            <div className="text-3xl display text-brand mt-1">+{rs(final)}</div>
+            <div className="display text-price text-brand mt-1">+{rs(final)}</div>
             <div className="text-small text-brand mt-1">{jobTitle(job)} · {methodLabel(m.paymentMethod)}</div>
           </div>
         </div>
@@ -279,7 +279,7 @@ export function CompletionFlow({ m, onBack, onComplete }: {
                 const on = !!checked[l.subId]
                 return (
                   <button key={l.subId} onClick={() => setChecked(c => ({ ...c, [l.subId]: !on }))}
-                    className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${on ? 'border-brand bg-mint' : 'border-divider'}`}>
+                    className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${on ? 'border-brand bg-mint' : 'border-line'}`}>
                     <Check checked={on}/>
                     <div className="flex-1">
                       <div className="font-bold text-body text-ink">{findSub(l.subId)?.sub.name}</div>
@@ -289,7 +289,7 @@ export function CompletionFlow({ m, onBack, onComplete }: {
                 )
               })}
               <button onClick={() => setChecked(c => ({ ...c, cleanup: !c.cleanup }))}
-                className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${checked.cleanup ? 'border-brand bg-mint' : 'border-divider'}`}>
+                className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${checked.cleanup ? 'border-brand bg-mint' : 'border-line'}`}>
                 <Check checked={!!checked.cleanup}/>
                 <div className="font-bold text-body text-ink">Work area cleaned up</div>
               </button>
@@ -314,7 +314,7 @@ export function CompletionFlow({ m, onBack, onComplete }: {
           <div className="anim-fade-in">
             <div className="text-center bg-canvas rounded-sheet p-6 mb-5">
               <div className="text-small text-muted font-bold">Final amount</div>
-              <div className="text-4xl display text-ink mt-1">{rs(final)}</div>
+              <div className="display text-price text-ink mt-1">{rs(final)}</div>
               <div className="text-small text-muted mt-1">{job.payType === 'hourly' ? `${rs(m.unit)}/hr × ${hours}h` : 'Fixed price'}</div>
             </div>
             <Row label="Hirer" value={job.hirer.name}/>
@@ -356,10 +356,7 @@ export function CompletionFlow({ m, onBack, onComplete }: {
               {RATE_TAGS.map(t => {
                 const on = tags.includes(t)
                 return (
-                  <button key={t} onClick={() => setTags(on ? tags.filter(x => x !== t) : [...tags, t])}
-                    className={`px-3 py-1.5 rounded-full text-small font-bold border transition-all ${on ? 'bg-brand border-brand text-white' : 'border-line text-muted'}`}>
-                    {t}
-                  </button>
+                  <Chip key={t} selected={on} onClick={() => setTags(on ? tags.filter(x => x !== t) : [...tags, t])}>{t}</Chip>
                 )
               })}
             </div>

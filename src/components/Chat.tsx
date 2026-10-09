@@ -146,7 +146,7 @@ export function ChatScreen({ convo, typing, onBack, onSend, onRead, quickReplies
             <div key={m.id} className={`flex items-end gap-2 anim-slide-up ${mine ? 'justify-end' : 'justify-start'}`}>
               {!mine && <Avatar name={convo.otherName} size={26}/>}
               <div className="max-w-[74%]">
-                <div className={`rounded-card text-body overflow-hidden ${mine ? 'bg-brand text-white rounded-br-sm' : 'bg-surface text-ink rounded-bl-sm border border-divider'}`}>
+                <div className={`rounded-card text-body overflow-hidden ${mine ? 'bg-brand text-white rounded-br-sm' : 'bg-surface text-ink rounded-bl-sm border border-line'}`}>
                   {m.image && <img src={m.image} alt="" className="w-48 h-36 object-cover"/>}
                   {m.text && <div className="px-4 py-2.5">{m.text}</div>}
                 </div>
@@ -158,7 +158,7 @@ export function ChatScreen({ convo, typing, onBack, onSend, onRead, quickReplies
         {typing && (
           <div className="flex items-end gap-2">
             <Avatar name={convo.otherName} size={26}/>
-            <div className="bg-surface border border-divider rounded-card rounded-bl-sm px-4 py-3 flex gap-1">
+            <div className="bg-surface border border-line rounded-card rounded-bl-sm px-4 py-3 flex gap-1">
               {[0, 1, 2].map(i => <span key={i} className="w-1.5 h-1.5 bg-subtle rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }}/>)}
             </div>
           </div>
@@ -197,7 +197,7 @@ export function ChatScreen({ convo, typing, onBack, onSend, onRead, quickReplies
             onClick={submit}
             disabled={!input.trim()}
             aria-label="Send"
-            className="w-10 h-10 bg-brand rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 active:scale-95 transition-all"
+            className="size-touch bg-brand rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 active:scale-95 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="M14.5 1.5l-13 5 5 2 2 5.5 6-12.5z"/></svg>
           </button>

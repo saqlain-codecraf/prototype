@@ -86,7 +86,7 @@ export function DocumentsScreen({ docs, onChange, step, total, onBack, onNext, s
             const file = docs[d.key]
             const busy = uploading === d.key
             return (
-              <div key={d.key} className={`border-2 rounded-card p-4 transition-all ${file ? 'border-brand bg-mint/40' : 'border-divider'}`}>
+              <div key={d.key} className={`border-2 rounded-card p-4 transition-all ${file ? 'border-brand bg-mint/40' : 'border-line'}`}>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-tile bg-surface border border-divider flex items-center justify-center overflow-hidden flex-shrink-0">
                     {file?.preview ? <img src={file.preview} alt="" className="w-full h-full object-cover"/> : <span className="text-2xl"><Glyph e={d.emoji}/></span>}
@@ -157,7 +157,7 @@ export function SkillSelector({ value, onChange }: { value: Skills; onChange: (s
         const isOpen = open === cat.id
         const count = cat.subs.filter(s => value[s.id]).length
         return (
-          <div key={cat.id} className={`border-2 rounded-card overflow-hidden transition-all ${count ? 'border-brand' : 'border-divider'}`}>
+          <div key={cat.id} className={`border-2 rounded-card overflow-hidden transition-all ${count ? 'border-brand' : 'border-line'}`}>
             <button onClick={() => setOpen(isOpen ? null : cat.id)} className={`w-full flex items-center gap-3 p-4 ${count ? 'bg-mint' : 'bg-surface'}`}>
               <span className="w-10 h-10 rounded-tile flex items-center justify-center text-xl bg-mint text-brand"><Glyph e={cat.emoji}/></span>
               <span className="flex-1 text-left">
@@ -187,11 +187,12 @@ export function SkillSelector({ value, onChange }: { value: Skills; onChange: (s
                           </div>
                           <button
                             onClick={() => toggleTools(sub.id)}
-                            className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-small font-bold border-2 transition-all ${
-                              sel.tools ? 'bg-brand border-brand text-white' : 'bg-surface border-line text-muted'
+                            aria-pressed={sel.tools}
+                            className={`w-full min-h-touch flex items-center justify-center gap-2 rounded-full text-ui font-bold border-2 transition-all ${
+                              sel.tools ? 'bg-mint border-brand text-brand' : 'bg-surface border-line text-label'
                             }`}
                           >
-                            {sel.tools ? <><CheckIcon size={13}/> I have the tools for this</> : <><ToolIcon size={13}/> Tap if you have the tools</>}
+                            {sel.tools ? <><CheckIcon size={16}/> I have the tools for this</> : <><ToolIcon size={16}/> Tap if you have the tools</>}
                           </button>
                         </div>
                       )}

@@ -110,7 +110,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
 
       <div className="absolute top-0 left-0 right-0"><StatusBar/></div>
       <div className="absolute top-10 left-4 right-4 flex items-center gap-2 z-10">
-        <button onClick={onBack} aria-label="Back" className="w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-md">
+        <button onClick={onBack} aria-label="Back" className="size-touch bg-surface rounded-full flex items-center justify-center shadow-md">
           <ChevronLeft size={18} className="text-label"/>
         </button>
         <div className="flex-1"/>
@@ -168,7 +168,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
       </div>
 
       {/* Bottom sheet — job summary + search status */}
-      <div className="absolute left-0 right-0 bottom-0 bg-surface rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)] px-5 pt-3 pb-6 z-10">
+      <div className="absolute left-0 right-0 bottom-0 bg-surface rounded-t-3xl shadow-[0_-8px_24px_rgb(16_35_29_/_0.10)] px-5 pt-3 pb-6 z-10">
         <div className="w-10 h-1 bg-line rounded-full mx-auto mb-3"/>
         <div className="flex items-center gap-3">
           <span className="w-11 h-11 bg-mint rounded-tile flex items-center justify-center text-2xl text-brand"><Glyph e={jobEmoji(job)}/></span>
@@ -228,7 +228,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
             <div className="space-y-2">
               {PAYMENT_METHODS.map(p => (
                 <button key={p.id} onClick={() => setMethod(p.id)}
-                  className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${method === p.id ? 'border-brand bg-mint' : 'border-divider'}`}>
+                  className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${method === p.id ? 'border-brand bg-mint' : 'border-line'}`}>
                   <span className="text-2xl"><Glyph e={p.icon}/></span>
                   <div className="flex-1"><div className="font-bold text-body text-ink">{p.label}</div><div className="text-small text-muted">{p.sub}</div></div>
                   <Radio checked={method === p.id}/>

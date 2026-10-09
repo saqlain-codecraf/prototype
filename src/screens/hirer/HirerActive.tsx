@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AppHeader, Avatar, Badge, BottomBar, Button, Check, Confirm, Label, MapView, PhotoThumb, Rating, Row, Sheet, StarInput, StatusBar } from '../../components/ui'
+import { AppHeader, Avatar, Badge, BottomBar, Button, Check, Chip, Confirm, Label, MapView, PhotoThumb, Rating, Row, Sheet, StarInput, StatusBar } from '../../components/ui'
 import { ChevronLeft, MapPinIcon, MessageIcon, PhoneIcon, CheckIcon, AlertCircle, Glyph } from '../../components/Icons'
 import { findSub, rs } from '../../data/catalog'
 import { PAYMENT_METHODS } from '../../data/mock'
@@ -18,7 +18,7 @@ export function HirerAssignedScreen({ hj, onTrack, onMessage }: { hj: HirerJob; 
           <span className="radar-ring"/>
           <div className="absolute inset-0 bg-brand rounded-full flex items-center justify-center text-5xl anim-bounce-in"><Glyph e="🤝"/></div>
         </div>
-        <h2 className="text-2xl display text-ink mb-1">Worker assigned!</h2>
+        <h2 className="display text-[26px] text-ink mb-1">Worker assigned!</h2>
         <p className="text-muted text-body mb-6">{w.name} has been notified and will start heading to you.</p>
         <div className="w-full bg-canvas rounded-card p-4 text-left">
           <div className="flex items-center gap-3">
@@ -27,7 +27,7 @@ export function HirerAssignedScreen({ hj, onTrack, onMessage }: { hj: HirerJob; 
               <div className="display text-ink">{w.name}</div>
               <div className="flex items-center gap-1.5"><Rating value={w.rating}/><span className="text-small text-subtle">· {w.jobs} jobs</span></div>
             </div>
-            <a href="tel:+923001234567" aria-label="Call" className="w-10 h-10 bg-surface rounded-tile flex items-center justify-center"><PhoneIcon size={16} className="text-label"/></a>
+            <a href="tel:+923001234567" aria-label="Call" className="size-touch bg-surface rounded-tile flex items-center justify-center"><PhoneIcon size={16} className="text-label"/></a>
           </div>
           <div className="grid grid-cols-3 gap-2 mt-4 text-center">
             {[{ l: 'Date', v: hj.job.dateLabel }, { l: 'Time', v: hj.job.time }, { l: 'Est. total', v: rs(hj.total ?? 0) }].map(x => (
@@ -86,7 +86,7 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
         pins={[{ id: 'home', x: 52, y: 44, kind: 'home', label: 'You' }, { id: 'w', ...pos, kind: 'worker', label: w.name.split(' ').map(x => x[0]).join(''), active: true }]}
         route={idx < 2 ? [pos, { x: 52, y: 44 }] : undefined}>
         <div className="absolute top-0 left-0 right-0"><StatusBar/></div>
-        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-md">
+        <button onClick={onBack} aria-label="Back" className="absolute top-10 left-4 size-touch bg-surface rounded-full flex items-center justify-center shadow-md">
           <ChevronLeft size={18} className="text-label"/>
         </button>
         {eta > 0 && (
@@ -167,7 +167,7 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
       <Sheet open={report} onClose={() => setReport(false)} title="Report an issue">
         <div className="space-y-2">
           {['Worker is late', 'Worker asked for more money', 'Quality of work', 'Safety concern', 'Something else'].map(r => (
-            <button key={r} onClick={() => { setReport(false); onReport(r) }} className="w-full flex items-center gap-3 p-4 rounded-card border-2 border-divider text-left active:border-brand">
+            <button key={r} onClick={() => { setReport(false); onReport(r) }} className="w-full flex items-center gap-3 p-4 rounded-card border-2 border-line text-left active:border-brand">
               <AlertCircle size={18} className="text-subtle"/><span className="text-body font-bold text-ink">{r}</span>
             </button>
           ))}
@@ -201,7 +201,7 @@ export function HirerCompletionScreen({ hj, onBack, onDone, onReport }: {
         <StatusBar/>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
           <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center text-5xl mb-5 anim-bounce-in"><Glyph e="⭐"/></div>
-          <h2 className="text-2xl display text-ink mb-1">Thanks for your review!</h2>
+          <h2 className="display text-[26px] text-ink mb-1">Thanks for your review!</h2>
           <p className="text-muted text-body">Your feedback helps {w.name.split(' ')[0]} and the Doaura community.</p>
         </div>
         <div className="px-5 pb-8"><Button className="w-full" onClick={() => onDone(rating)}>Back to home</Button></div>
@@ -262,8 +262,7 @@ export function HirerCompletionScreen({ hj, onBack, onDone, onReport }: {
               {TAGS.map(t => {
                 const on = tags.includes(t)
                 return (
-                  <button key={t} onClick={() => setTags(on ? tags.filter(x => x !== t) : [...tags, t])}
-                    className={`px-3 py-1.5 rounded-full text-small font-bold border transition-all ${on ? 'bg-brand border-brand text-white' : 'border-line text-muted'}`}>{t}</button>
+                  <Chip key={t} selected={on} onClick={() => setTags(on ? tags.filter(x => x !== t) : [...tags, t])}>{t}</Chip>
                 )
               })}
             </div>

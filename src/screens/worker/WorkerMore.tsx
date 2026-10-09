@@ -44,13 +44,13 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
       </ScreenHeader>
 
       <div className="flex-1 overflow-y-auto px-5 py-4">
-        <div className="bg-surface rounded-card p-4 border border-divider mb-4">
+        <div className="bg-surface rounded-card p-4 border border-line mb-4">
           <div className="text-body font-bold text-label mb-4">Last 7 days</div>
           <div className="flex items-end gap-2 h-32">
             {days.map((d, i) => (
               <div key={d} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
                 {perDay[i] > 0 && <span className="text-tab font-bold text-muted">{Math.round(perDay[i] / 1000)}k</span>}
-                <div className="w-full rounded-t-lg transition-all duration-700" style={{ height: `${Math.max(4, (perDay[i] / max) * 96)}px`, background: d === 0 ? '#10B981' : '#D1FAE5' }}/>
+                <div className="w-full rounded-t-lg transition-all duration-700" style={{ height: `${Math.max(4, (perDay[i] / max) * 96)}px`, background: d === 0 ? 'var(--color-brand)' : 'var(--color-placeholder)' }}/>
                 <span className={`text-tab font-bold ${d === 0 ? 'text-brand' : 'text-subtle'}`}>{dayLabel(d)}</span>
               </div>
             ))}
@@ -62,7 +62,7 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
             { l: 'Jobs this week', v: String(pays.filter(p => p.daysAgo < 7).length), e: '✅' },
             { l: 'Avg per job', v: pays.length ? rs(week / Math.max(1, pays.filter(p => p.daysAgo < 7).length)) : rs(0), e: '📊' },
           ].map(s => (
-            <div key={s.l} className="bg-surface rounded-card p-4 border border-divider">
+            <div key={s.l} className="bg-surface rounded-card p-4 border border-line">
               <IconTile size={44}><Glyph e={s.e} size={22}/></IconTile>
               <div className="display text-ink text-lg mt-1">{s.v}</div>
               <div className="text-small text-subtle font-bold">{s.l}</div>
@@ -70,7 +70,7 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
           ))}
         </div>
 
-        <div className="bg-surface rounded-card border border-divider overflow-hidden">
+        <div className="bg-surface rounded-card border border-line overflow-hidden">
           <div className="px-4 py-3 border-b border-divider font-bold text-ink">Payments</div>
           {pays.length === 0 ? (
             <EmptyState emoji={<Glyph e="💸"/>} title="No payments yet" desc="Complete your first job to see earnings here."/>
@@ -90,7 +90,7 @@ export function EarningsScreen({ completed, history, onWithdraw }: { completed: 
       <Sheet open={sheet} onClose={() => setSheet(false)} title="Withdraw earnings">
         <div className="text-center bg-canvas rounded-card p-5 mb-4">
           <div className="text-small text-muted">Amount</div>
-          <div className="text-3xl display text-ink">{rs(balance)}</div>
+          <div className="display text-price text-ink">{rs(balance)}</div>
         </div>
         <div className="flex items-center gap-3 p-4 border-2 border-brand bg-mint rounded-card mb-5 text-brand">
           <span className="text-2xl"><Glyph e="📱"/></span>

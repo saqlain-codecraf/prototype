@@ -329,7 +329,7 @@ export function OtpScreen({ phone, step, total, onBack, onVerify }: {
         {resent && <div className="text-small text-brand mt-2 anim-fade-in">A new code was sent ✓</div>}
         <button onClick={onBack} className="mt-4 text-body text-muted underline">Change phone number</button>
 
-        <button onClick={() => setCode('482193')} className="mt-8 text-small text-subtle border border-dashed border-line rounded-lg px-3 py-1.5">
+        <button onClick={() => setCode('482193')} className="mt-8 text-small text-subtle border border-dashed border-line rounded-tile px-3 py-1.5">
           Prototype: tap to auto-fill code
         </button>
       </div>

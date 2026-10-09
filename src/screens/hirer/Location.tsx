@@ -53,7 +53,7 @@ export function LocationPermission({ onAllow, onManual }: { onAllow: (p: Place) 
             <MapPinIcon size={36} className="text-white"/>
           </div>
         </div>
-        <h2 className="text-2xl display text-ink mb-2">Find pros near you</h2>
+        <h2 className="display text-[26px] text-ink mb-2">Find pros near you</h2>
         <p className="text-muted text-body leading-relaxed">
           Allow location access so we can show trusted professionals nearby. You can choose a different address for each job.
         </p>
@@ -133,7 +133,7 @@ export function LocationPickerScreen({ initial, title = 'Where do you need work 
         {/* Fixed centre pin */}
         <div className="absolute left-1/2 top-1/2 pointer-events-none" style={{ transform: 'translate(-50%, -100%)' }}>
           <div className={`flex flex-col items-center transition-transform duration-200 ${dragging ? '-translate-y-3' : ''}`}>
-            <div className="mb-1.5 bg-ink text-white text-small font-bold px-2.5 py-1 rounded-lg shadow-lg whitespace-nowrap">
+            <div className="mb-1.5 bg-ink text-white text-small font-bold px-2.5 py-1 rounded-tile shadow-lg whitespace-nowrap">
               {dragging ? 'Release to set location' : locating ? 'Finding you…' : resolving ? 'Finding address…' : 'Work happens here'}
             </div>
             <div className="w-11 h-11 rounded-full rounded-br-none rotate-45 bg-brand border-[3px] border-white shadow-xl flex items-center justify-center">
@@ -166,7 +166,7 @@ export function LocationPickerScreen({ initial, title = 'Where do you need work 
       </div>
 
       {/* Bottom sheet */}
-      <div className="relative -mt-5 bg-surface rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] px-5 pt-3 pb-7 flex-shrink-0">
+      <div className="relative -mt-5 bg-surface rounded-t-3xl shadow-[0_-8px_24px_rgb(16_35_29_/_0.10)] px-5 pt-3 pb-7 flex-shrink-0">
         <div className="w-10 h-1 bg-line rounded-full mx-auto mb-3"/>
         <div className="text-small font-bold text-subtle">{title}</div>
         <div className="flex items-start gap-3 mt-2">
@@ -247,7 +247,7 @@ function PlaceSearch({ near, onClose, onPick, onLocate }: { near: LatLng; onClos
     <div className="absolute inset-0 z-10 bg-surface flex flex-col anim-fade-in">
       <StatusBar/>
       <div className="flex items-center gap-2 px-4 py-2">
-        <button onClick={onClose} aria-label="Close search" className="w-10 h-10 rounded-full bg-divider flex items-center justify-center flex-shrink-0">
+        <button onClick={onClose} aria-label="Close search" className="size-touch rounded-full bg-divider flex items-center justify-center flex-shrink-0">
           <ChevronLeft size={18} className="text-label"/>
         </button>
         <div className="flex-1 flex items-center gap-2 bg-divider rounded-full px-4">
@@ -298,7 +298,7 @@ export function LocationPickerBody({ value, onChange, detail, onDetail, gpsAllow
   const [picking, setPicking] = useState(false)
   return (
     <div>
-      <button onClick={() => setPicking(true)} className="block w-full rounded-card overflow-hidden border border-divider relative text-left">
+      <button onClick={() => setPicking(true)} className="block w-full rounded-card overflow-hidden border border-line relative text-left">
         <MapView height={160} center={coords(value)} zoom={16} pins={[{ id: 'home', x: 50, y: 50, kind: 'home' }]}/>
         <span className="absolute top-3 right-3 bg-surface rounded-full px-3 py-1.5 shadow-md text-small font-bold text-brand">Adjust pin</span>
       </button>

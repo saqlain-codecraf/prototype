@@ -272,7 +272,7 @@ export function Toggle({ on, onChange, size = 'md' }: { on: boolean; onChange: (
 
 export function Check({ checked, round = false }: { checked: boolean; round?: boolean }) {
   return (
-    <span className={`w-5 h-5 flex items-center justify-center border-2 flex-shrink-0 transition-all ${round ? 'rounded-full' : 'rounded-md'} ${checked ? 'bg-brand border-brand' : 'border-line bg-surface'}`}>
+    <span className={`w-5 h-5 flex items-center justify-center border-2 flex-shrink-0 transition-all ${round ? 'rounded-full' : 'rounded-[6px]'} ${checked ? 'bg-brand border-brand' : 'border-line bg-surface'}`}>
       {checked && <CheckIcon size={12} className="text-white"/>}
     </span>
   )
@@ -723,7 +723,7 @@ function Pin({ pin }: { pin: MapPin }) {
     return (
       <div className="absolute -translate-x-1/2 -translate-y-full anim-drop" style={style}>
         <div className="flex flex-col items-center">
-          {pin.label && <div className="mb-1 bg-ink text-white text-small font-bold px-2 py-1 rounded-lg whitespace-nowrap">{pin.label}</div>}
+          {pin.label && <div className="mb-1 bg-ink text-white text-small font-bold px-2 py-1 rounded-tile whitespace-nowrap">{pin.label}</div>}
           <div className={`w-9 h-9 rounded-full rounded-br-none rotate-45 flex items-center justify-center shadow-lg ${pin.kind === 'home' ? 'bg-brand' : 'bg-danger'}`}>
             <span className="-rotate-45"><MapPinIcon size={15} className="text-white"/></span>
           </div>

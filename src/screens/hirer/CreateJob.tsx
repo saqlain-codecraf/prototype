@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { AppHeader, BottomBar, Button, Check, Label, NumberStepper, PhotoPicker, PhotoThumb, Row } from '../../components/ui'
+import { AppHeader, BottomBar, Button, Check, Chip, Label, NumberStepper, PhotoPicker, PhotoThumb, Row } from '../../components/ui'
 import { EditIcon, AlertCircle, ToolIcon, Glyph } from '../../components/Icons'
 import { CATEGORIES, findCategory, findSub, rs } from '../../data/catalog'
 import { nextDays, TIME_SLOTS } from '../../data/mock'
@@ -126,7 +126,7 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
             <div className="grid grid-cols-2 gap-3">
               {CATEGORIES.map(c => (
                 <button key={c.id} onClick={() => { if (c.id !== categoryId) setLines({}); setCategoryId(c.id); setI(1) }}
-                  className={`flex items-center gap-3 p-4 rounded-card border-2 transition-all active:scale-[0.97] text-left ${categoryId === c.id ? 'border-brand bg-mint' : 'border-divider'}`}>
+                  className={`flex items-center gap-3 p-4 rounded-card border-2 transition-all active:scale-[0.97] text-left ${categoryId === c.id ? 'border-brand bg-mint' : 'border-line'}`}>
                   <span className="w-10 h-10 rounded-tile flex items-center justify-center text-xl bg-mint text-brand"><Glyph e={c.emoji}/></span>
                   <span className="font-bold text-body text-ink">{c.name}</span>
                 </button>
@@ -151,7 +151,7 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
               {cat.subs.map(s => {
                 const on = lines[s.id] !== undefined
                 return (
-                  <div key={s.id} className={`rounded-card border-2 transition-all ${on ? 'border-brand bg-mint/60' : 'border-divider'}`}>
+                  <div key={s.id} className={`rounded-card border-2 transition-all ${on ? 'border-brand bg-mint/60' : 'border-line'}`}>
                     <button onClick={() => toggleSub(s.id)} className="w-full flex items-center gap-3 p-4 text-left">
                       <Check checked={on}/>
                       <div className="flex-1 min-w-0">
@@ -188,7 +188,7 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
           <div className="anim-fade-in space-y-5">
             <div>
               <Label>Tools</Label>
-              <button onClick={() => setToolsRequired(t => !t)} className={`w-full flex items-start gap-3 p-4 rounded-card border-2 text-left transition-all ${toolsRequired ? 'border-brand bg-mint' : 'border-divider'}`}>
+              <button onClick={() => setToolsRequired(t => !t)} className={`w-full flex items-start gap-3 p-4 rounded-card border-2 text-left transition-all ${toolsRequired ? 'border-brand bg-mint' : 'border-line'}`}>
                 <Check checked={toolsRequired}/>
                 <div className="flex-1">
                   <div className="font-bold text-body text-ink flex items-center gap-1.5"><ToolIcon size={14}/> Worker must bring tools</div>
@@ -224,10 +224,11 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
             <div className="flex gap-2 overflow-x-auto -mx-5 px-5 pb-2">
               {days.map(d => (
                 <button key={d.key} onClick={() => setDateKey(d.key)}
-                  className={`flex-shrink-0 w-16 py-3 rounded-card flex flex-col items-center border-2 transition-all ${dateKey === d.key ? 'bg-brand border-brand text-white' : 'border-divider text-label'}`}>
-                  <span className={`text-tab font-bold ${dateKey === d.key ? 'text-white' : 'text-subtle'}`}>{d.dow}</span>
-                  <span className="text-xl display">{d.day}</span>
-                  <span className={`text-tab ${dateKey === d.key ? 'text-white' : 'text-subtle'}`}>{d.month}</span>
+                  aria-pressed={dateKey === d.key}
+                  className={`flex-shrink-0 w-[68px] py-3 rounded-card flex flex-col items-center border-2 transition-all ${dateKey === d.key ? 'bg-mint border-brand text-brand' : 'bg-surface border-line text-ink'}`}>
+                  <span className={`text-small font-bold ${dateKey === d.key ? 'text-brand' : 'text-muted'}`}>{d.dow}</span>
+                  <span className="display text-[24px] leading-tight">{d.day}</span>
+                  <span className={`text-small ${dateKey === d.key ? 'text-brand' : 'text-muted'}`}>{d.month}</span>
                 </button>
               ))}
             </div>
@@ -237,18 +238,16 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
               <div className="grid grid-cols-3 gap-2 mb-3">
                 {TIME_SLOTS.map(s => (
                   <button key={s.id} onClick={() => { setSlot(s.id); setTime('') }}
-                    className={`py-3 rounded-card border-2 flex flex-col items-center transition-all ${slot === s.id ? 'border-brand bg-mint' : 'border-divider'}`}>
-                    <span className="text-xl"><Glyph e={s.emoji}/></span>
-                    <span className="text-small font-bold text-ink">{s.label}</span>
+                    aria-pressed={slot === s.id}
+                    className={`py-3 rounded-card border-2 flex flex-col items-center gap-1 transition-all ${slot === s.id ? 'border-brand bg-mint text-brand' : 'border-line bg-surface text-brand'}`}>
+                    <Glyph e={s.emoji} size={24}/>
+                    <span className="text-ui font-bold text-ink">{s.label}</span>
                   </button>
                 ))}
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="flex flex-wrap gap-2">
                 {TIME_SLOTS.find(s => s.id === slot)!.times.map(t => (
-                  <button key={t} onClick={() => setTime(t)}
-                    className={`py-2.5 rounded-tile text-small font-bold transition-all ${time === t ? 'bg-brand text-white' : 'bg-canvas text-label border border-line'}`}>
-                    {t}
-                  </button>
+                  <Chip key={t} selected={time === t} onClick={() => setTime(t)}>{t}</Chip>
                 ))}
               </div>
             </div>
@@ -271,7 +270,7 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
                 { t: 'fixed', title: 'Fixed price', desc: 'One price for the job', icon: '🎯' },
               ] as const).map(o => (
                 <button key={o.t} onClick={() => setPayType(o.t)}
-                  className={`p-4 rounded-card border-2 text-left transition-all ${payType === o.t ? 'border-brand bg-mint' : 'border-divider'}`}>
+                  className={`p-4 rounded-card border-2 text-left transition-all ${payType === o.t ? 'border-brand bg-mint' : 'border-line'}`}>
                   <div className="text-2xl mb-1"><Glyph e={o.icon}/></div>
                   <div className="font-bold text-ink">{o.title}</div>
                   <div className="text-small text-muted">{o.desc}</div>
@@ -305,10 +304,9 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
                     {[0.9, 1, 1.1, 1.2].map(f => {
                       const v = Math.round((stdRate * f) / 50) * 50
                       return (
-                        <button key={f} onClick={() => setRate(v)}
-                          className={`px-3 py-1.5 rounded-tile text-small font-bold transition-all ${hourlyRate === v ? 'bg-brand text-white' : 'bg-canvas text-muted border border-line'}`}>
+                        <Chip key={f} selected={hourlyRate === v} onClick={() => setRate(v)} className="px-3">
                           {f === 1 ? 'Standard' : `${f > 1 ? '+' : ''}${Math.round((f - 1) * 100)}%`}
-                        </button>
+                        </Chip>
                       )
                     })}
                   </div>
