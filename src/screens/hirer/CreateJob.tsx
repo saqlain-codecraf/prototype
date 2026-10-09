@@ -1,8 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { AppHeader, BottomBar, Button, Check, Chip, Label, NumberStepper, PhotoPicker, PhotoThumb, Row } from '../../components/ui'
-import { EditIcon, AlertCircle, ToolIcon, Glyph } from '../../components/Icons'
+import { AppHeader, BottomBar, Button, Check, Chip, IconTile, Label, NumberStepper, PhotoPicker, PhotoThumb, Row } from '../../components/ui'
+import { EditIcon, AlertCircle, ToolIcon, Glyph, CheckIcon } from '../../components/Icons'
 import { CATEGORIES, findCategory, findSub, rs } from '../../data/catalog'
-import { nextDays, TIME_SLOTS } from '../../data/mock'
+import { nextDays, PAYMENT_METHODS, TIME_SLOTS } from '../../data/mock'
 import { standardEstimate, standardHourly, uid, type Job, type PayType } from '../../data/jobs'
 import { LocationPickerBody } from './Location'
 import type { CreatePreset, Place } from './types'
@@ -47,6 +47,7 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
   const [slot, setSlot] = useState('morning')
   const [time, setTime] = useState('')
   const [payType, setPayType] = useState<PayType>('hourly')
+  const [method, setMethod] = useState('cash')
   const [fixed, setFixed] = useState<number | null>(null)
   const [rate, setRate] = useState<number | null>(null)
   const [posting, setPosting] = useState(false)
@@ -102,6 +103,7 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
       payType,
       fixedPrice,
       hourlyRate: payType === 'hourly' ? hourlyRate : undefined,
+      paymentMethod: method,
       hirer: { name: hirer.name, rating: 4.8, jobs: 12, phone: hirer.phone },
     }
     setTimeout(() => onPost(job), 900)
@@ -328,9 +330,29 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
               </div>
             )}
 
+            <div className="mt-6">
+              <Label>Payment method</Label>
+              <div className="space-y-2">
+                {PAYMENT_METHODS.map(p => {
+                  const on = method === p.id
+                  return (
+                    <button key={p.id} onClick={() => setMethod(p.id)} aria-pressed={on}
+                      className={`w-full flex items-center gap-3 p-3.5 rounded-card border-2 text-left transition-all ${on ? 'border-brand bg-mint' : 'border-line bg-surface'}`}>
+                      <IconTile size={44} tone={on ? 'surface' : 'mint'}><Glyph e={p.icon} size={22}/></IconTile>
+                      <div className="flex-1 min-w-0"><div className="font-bold text-body text-ink">{p.label}</div><div className="text-small text-muted">{p.sub}</div></div>
+                      <span className={`size-6 rounded-full flex items-center justify-center flex-shrink-0 ${on ? 'bg-brand text-white' : 'border-2 border-line'}`}>{on && <CheckIcon size={14}/>}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             <div className="mt-4 flex items-start gap-2.5 p-3 bg-mint rounded-tile text-brand">
               <AlertCircle size={16} className="text-brand mt-0.5 flex-shrink-0"/>
-              <p className="text-small text-brand">This is an <b>estimate</b>. Workers send offers and the <b>final price</b> is the bid you accept. You pay nothing until you assign a worker.</p>
+              <p className="text-small text-brand">
+                This is an <b>estimate</b>. Workers send offers and the <b>final price</b> is the bid you accept.{' '}
+                {method === 'cash' ? 'You pay the worker in cash after the job.' : 'Nothing is charged until the work is done and you confirm it.'}
+              </p>
             </div>
           </div>
         )}
@@ -356,6 +378,7 @@ export function CreateJobScreen({ preset, place: initialPlace, gpsAllowed, hirer
             </ReviewCard>
             <ReviewCard title="Payment" onEdit={() => goto('payment')}>
               {payType === 'hourly' && <Row label="Your hourly rate" value={`${rs(hourlyRate)}/hr`}/>}
+              <Row label="Pay with" value={<span className="inline-flex items-center gap-1.5"><Glyph e={PAYMENT_METHODS.find(p => p.id === method)!.icon}/>{PAYMENT_METHODS.find(p => p.id === method)!.label}</span>}/>
               <Row label={payType === 'hourly' ? `Estimated · ${totalHours}h` : 'Fixed price'} value={rs(estimate)} strong/>
             </ReviewCard>
           </div>

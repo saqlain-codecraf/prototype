@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Avatar, Badge, Button, Confirm, CountdownBar, MapView, Radio, Rating, Row, Sheet, StatusBar } from '../../components/ui'
+import { Avatar, Badge, Button, Confirm, CountdownBar, MapView, Rating, Row, Sheet, StatusBar } from '../../components/ui'
 import { ChevronLeft, MapPinIcon, ClockIcon, ToolIcon, ShieldIcon, Glyph } from '../../components/Icons'
 import { rs } from '../../data/catalog'
 import { CANDIDATES, PAYMENT_METHODS, type Candidate } from '../../data/mock'
@@ -31,8 +31,8 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
   const [streamDone, setStreamDone] = useState(false)
   const [focus, setFocus] = useState<string | null>(null)
   const [selected, setSelected] = useState<LiveBid | null>(null)
-  const [sheetStep, setSheetStep] = useState<'confirm' | 'payment'>('confirm')
-  const [method, setMethod] = useState('cash')
+  const method = job.paymentMethod ?? 'cash'
+  const methodInfo = PAYMENT_METHODS.find(p => p.id === method) ?? PAYMENT_METHODS[0]
   const [assigning, setAssigning] = useState(false)
   const [confirmCancel, setConfirmCancel] = useState(false)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -157,7 +157,7 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
                 </div>
                 <div className="flex gap-2 mt-2.5">
                   <Button variant="secondary" size="md" className="flex-1" onClick={() => reject(b)}>Decline</Button>
-                  <Button size="md" className="flex-[2]" onClick={() => { setSelected(b); setSheetStep('confirm') }}>
+                  <Button size="md" className="flex-[2]" onClick={() => setSelected(b)}>
                     Accept · {rs(totalFor(job, b.amount))}
                   </Button>
                 </div>
@@ -192,15 +192,15 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
         </div>
       </div>
 
-      {/* Confirm worker → payment method */}
+      {/* Confirm worker → assign (payment method was chosen when posting) */}
       <Sheet open={!!selected} onClose={() => {
         if (assigning || !selected) return
         const b = selected
         setSelected(null)
         selectedRef.current = null
         if (expiredWhileOpen.current === b.id) { expiredWhileOpen.current = null; expire(b) }
-      }} title={sheetStep === 'confirm' ? 'Confirm worker' : 'Payment method'}>
-        {selected && sheetStep === 'confirm' && (
+      }} title="Confirm worker">
+        {selected && (
           <div className="anim-fade-in">
             <div className="flex items-center gap-3 p-4 bg-canvas rounded-card">
               <Avatar name={selected.c.name} size={56}/>
@@ -215,33 +215,13 @@ export function FindWorkersScreen({ hj, onBack, onCancel, onAssign }: {
               <Row label="Agreed rate" value={`${rs(selected.amount)}${unit}`}/>
               {job.payType === 'hourly' && <Row label="Duration" value={`${hours} hours`}/>}
               <Row label="Arrives in" value={`~${selected.c.etaMin} min`}/>
+              <Row label="Pay with" value={<span className="inline-flex items-center gap-1.5"><Glyph e={methodInfo.icon}/>{methodInfo.label}</span>}/>
               <div className="border-t border-divider mt-1 pt-1"><Row label="Estimated total" value={rs(totalFor(job, selected.amount))} strong/></div>
             </div>
             {job.toolsRequired && !selected.c.hasTools && (
               <div className="mt-3 p-3 bg-warn rounded-tile text-small text-warn-ink font-bold"><Glyph e="⚠️"/> This worker doesn't have their own tools — you asked for a worker who brings tools.</div>
             )}
-            <Button className="w-full mt-5" onClick={() => setSheetStep('payment')}>Continue to payment</Button>
-          </div>
-        )}
-        {selected && sheetStep === 'payment' && (
-          <div className="anim-fade-in">
-            <div className="space-y-2">
-              {PAYMENT_METHODS.map(p => (
-                <button key={p.id} onClick={() => setMethod(p.id)}
-                  className={`w-full flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${method === p.id ? 'border-brand bg-mint' : 'border-line'}`}>
-                  <span className="text-2xl"><Glyph e={p.icon}/></span>
-                  <div className="flex-1"><div className="font-bold text-body text-ink">{p.label}</div><div className="text-small text-muted">{p.sub}</div></div>
-                  <Radio checked={method === p.id}/>
-                </button>
-              ))}
-            </div>
-            <div className="mt-4 p-3 bg-canvas rounded-tile text-small text-muted">
-              {method === 'cash' ? 'Pay the worker in cash once the job is done.' : 'You’ll confirm the payment after the worker finishes. Nothing is charged now.'}
-            </div>
-            <div className="flex gap-2 mt-4">
-              <Button variant="secondary" className="flex-1" onClick={() => setSheetStep('confirm')} disabled={assigning}>Back</Button>
-              <Button className="flex-[2]" loading={assigning} onClick={assign}>{assigning ? 'Assigning…' : `Confirm & assign`}</Button>
-            </div>
+            <Button className="w-full mt-5" loading={assigning} onClick={assign}>{assigning ? 'Assigning…' : 'Confirm & assign'}</Button>
           </div>
         )}
       </Sheet>

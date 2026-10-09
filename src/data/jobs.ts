@@ -30,6 +30,8 @@ export interface Job {
   fixedPrice: number
   /** Hirer's own hourly offer; falls back to the admin standard rates when absent. */
   hourlyRate?: number
+  /** Chosen by the hirer when posting (id from PAYMENT_METHODS). */
+  paymentMethod?: string
   hirer: Person
   urgent?: boolean
 }
