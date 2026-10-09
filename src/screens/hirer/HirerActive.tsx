@@ -163,15 +163,10 @@ export function HirerActiveScreen({ hj, onBack, onMessage, onCancel, onReview, o
         </BottomBar>
       ) : workerAction && (
         <BottomBar>
-          <div className="flex items-center gap-2 text-ui text-muted mb-3">
+          <div className="flex items-center gap-2 text-ui text-muted">
             <span className="w-2 h-2 rounded-full bg-success animate-pulse flex-shrink-0"/>
             Waiting for {w.name.split(' ')[0]} to update the job status
           </div>
-          <button onClick={workerAction.onClick}
-            className="w-full min-h-touch px-4 py-3 rounded-btn border-2 border-dashed border-line bg-canvas text-left flex items-center gap-3 active:scale-[0.99] transition-all">
-            <span className="text-small font-bold text-muted flex-1">Prototype · act as {w.name.split(' ')[0]}</span>
-            <span className="text-ui font-bold text-brand">{workerAction.label}</span>
-          </button>
         </BottomBar>
       )}
 
